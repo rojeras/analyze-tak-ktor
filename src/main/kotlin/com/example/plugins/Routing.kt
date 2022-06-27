@@ -1,6 +1,7 @@
 package com.example.plugins
 
 import com.example.models.Article
+import com.example.models.Plattform
 import com.example.models.articles
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
@@ -18,6 +19,12 @@ fun Application.configureRouting() {
 
         get("/") {
             call.respondRedirect("articles")
+        }
+
+        route("tak") {
+            get("select") {
+                call.respond(FreeMarkerContent("select.ftl", mapOf("plattforms" to Plattform.plattforms)))
+            }
         }
 
         route("articles") {
