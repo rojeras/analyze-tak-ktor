@@ -11,10 +11,6 @@ suspend fun main(args: Array<String>) {
      * Defined as a global in TakApiInfo
      */
 
-    val url = "http://api.ntjp.se/coop/api/v1/connectionPoints.json"
-
-    val client = ApiClient.client
-
     Plattform.load()
 
     for (cp in Plattform.plattforms) {

@@ -21,6 +21,10 @@ fun Application.configureRouting() {
             call.respondRedirect("articles")
         }
 
+        get("hello") {
+            call.respondText("Hello World!")
+        }
+
         route("tak") {
             get("select") {
                 call.respond(FreeMarkerContent("select.ftl", mapOf("plattforms" to Plattform.plattforms)))
