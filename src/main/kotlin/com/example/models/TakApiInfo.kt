@@ -31,6 +31,11 @@ import kotlinx.serialization.json.Json
 
 private const val BASE_URL = "http://api.ntjp.se/coop/api/v1/"
 
+/**
+ * Api client. Object which own and store the client.
+ *
+ * @constructor Create empty Api client
+ */
 object ApiClient {
     val client: HttpClient
 
@@ -50,20 +55,6 @@ object ApiClient {
 }
 
 /**
- * Holds the cached answer from TAK-api. Will be populated as part of the deserialization in [takApiLoad].
- *
- * @param answer A list of [InstalledContracts]
- * @param lastChangeTime Time when the server cache was last updated.
- */
-@Serializable
-data class InstalledContract(
-    val id: Int,
-    val connectionPoint: Plattform,
-    val serviceContract: TakServiceContract,
-)
-
-
-/**
  * Kotlin class representing deserialized JSON data from TAK-api ConnectionPoint endpoint. Represent a platform.
  *
  * @param id API id.
@@ -71,11 +62,8 @@ data class InstalledContract(
  * @param environment Type of platform ("PROD", "QA", "TEST")
  * @param snapshotTime The last time this information was updated in the TAK-api.
  */
-
-// var plattforms: List<Plattform> = mutableListOf()
-
 @Serializable
-data class Plattform(
+data class ConnectionPoint(
     val id: Int,
     val platform: String,
     val environment: String,
@@ -87,7 +75,7 @@ data class Plattform(
 
     companion object {
 
-        lateinit var plattforms: List<Plattform>
+        lateinit var plattforms: List<ConnectionPoint>
 
         suspend fun load() {
             val url = BASE_URL + "connectionPoints.json"
@@ -105,46 +93,26 @@ data class Plattform(
 }
 
 /**
- * Kotlin class representing deserialized JSON data from TAK-api. Tak service contract.
- *
- * @property id API id.
- * @property name Contract name.
- * @property namespace Contract namespace.
- * @property major Major version.
- * @property minor Minor version.
- * @constructor Create empty Tak service contract
+ * Represent the response from a call to TAK-api InstalledContracts
  */
 @Serializable
-data class TakServiceContract(
+data class InstalledContracts(
     val id: Int,
-    val name: String = "",
-    val namespace: String,
-    val major: Int,
-    val minor: Int,
-) {
-    init {
-        // takInstalledContractNamespace.add(namespace)
-        // println("Saving contract $namespace")
-    }
-}
+    val connectionPoint: ConnectionPoint,
+    val serviceContracts: ServiceContract
+)
 
 /**
- * Tak api load
+ * Represent the response of a coll of TAK-api ServiceContracts
  *
+ * @param answer A list of [InstalledContracts]
+ * @param lastChangeTime Time when the server cache was last updated.
  */
-/*
-fun takApiLoad() {
-    val url = "${getBaseUrl()}/http://api.ntjp.se/coop/api/v1/installedContracts"
-
-    getAsync(url) { response ->
-        println("Size of TAK-api InstalledContracts are: ${response.length}")
-        val json = Json { allowStructuredMapKeys = true }
-        val takApiDto: TakApiDto = json.decodeFromString(TakApiDto.serializer(), response)
-        console.log(takApiDto)
-        console.log(takInstalledContractNamespace)
-        RivManager.refresh()
-    }
-}
-
-val takInstalledContractNamespace = mutableSetOf<String>()
-*/
+@Serializable
+data class ServiceContract(
+    val id: Int,
+    val name: String,
+    val namespace: String,
+    val major: Int,
+    val minor: Int
+)

@@ -1,7 +1,6 @@
 package com.example
 
-import com.example.models.ApiClient
-import com.example.models.Plattform
+import com.example.models.ConnectionPoint
 import com.example.plugins.*
 import io.ktor.server.application.*
 
@@ -11,9 +10,9 @@ suspend fun main(args: Array<String>) {
      * Defined as a global in TakApiInfo
      */
 
-    Plattform.load()
+    ConnectionPoint.load()
 
-    for (cp in Plattform.plattforms) {
+    for (cp in ConnectionPoint.plattforms) {
         val id = cp.id
         println("$id ${cp.platform}-${cp.environment}")
     }
