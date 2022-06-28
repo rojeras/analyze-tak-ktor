@@ -3,15 +3,20 @@
 <@layout.header>
     <div>
         <h3>Välj TAK (tjänsteplattform)</h3>
+
+        <form action="/tak" id="tpform">
+
+        </form>
+
+        <select id="tp" name="tpid" form="tpform" onchange="this.form.submit()">
+        <option style="display: none" >Välj</option>
+
         <#list plattforms as plattform>
-            <div>
-                <h3>
-                    <a href="/tak/${plattform.id}">${plattform.platform}-${plattform.environment}</a>
-                </h3>
-                <p>
-                    ${plattform.snapshotTime}
-                </p>
-            </div>
+
+            <option value="${plattform.id}">${plattform.platform}-${plattform.environment}</option>
+
         </#list>
+        </select>
     </div>
+
 </@layout.header>
