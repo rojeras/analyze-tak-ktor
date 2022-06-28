@@ -1,3 +1,4 @@
+<#-- @ftlvariable name="plattforms" type="kotlin.collections.List<com.example.models.ConnectionPoint>" -->
 <#macro header>
     <!DOCTYPE html>
     <html lang="en">
@@ -7,10 +8,30 @@
     <body style="text-align: center; font-family: sans-serif">
     <!-- <img src="/static/ktor_logo.png"> -->
     <h1>Utforska en tjänsteadresseringskatalog (TAK)</h1>
-    <p><i>Powered by Ktor & Freemarker templates!</i></p>
     <hr>
+
+    <div>
+        <h3>Välj TAK (tjänsteplattform)</h3>
+
+        <form action="/tak" id="tpform" method="post">
+
+        </form>
+
+        <select id="tp" name="tpid" form="tpform" onchange="this.form.submit()">
+            <option style="display: none" >Välj</option>
+
+            <#list plattforms as plattform>
+
+                <option value="${plattform.id}">${plattform.platform}-${plattform.environment}</option>
+
+            </#list>
+        </select>
+    </div>
+
+    <hr>
+
     <#nested>
-    <a href="/">Hem</a>
+
     </body>
     </html>
 </#macro>

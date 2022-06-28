@@ -4,6 +4,8 @@
 * Pinegrow
 
 # Todo
-* Bygg klientdelen först, dvs funktioner för att hämta och lagra data från TAK-api per TP.
-* Bygg därefter visningsdelen med Freemarker
+* Bygg vidare och hantera allt data från TAK-api
+* Bygg ut summary.ftl till att inkludera all grundinformation
+* Se till att hela tiden lägga på testfall!
+* Tag bort alla referenser till "article" - både routes och mallar
 * Ändra group/domän till "se.skoview"

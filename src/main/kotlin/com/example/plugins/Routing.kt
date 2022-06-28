@@ -19,7 +19,7 @@ fun Application.configureRouting() {
         }
 
         get("/") {
-            call.respondRedirect("articles")
+            call.respondRedirect("tak/select")
         }
 
         get("hello") {
@@ -30,17 +30,17 @@ fun Application.configureRouting() {
 
             post {
                 // Show TAK summary page for TAK with this id
-                println("In get tak default")
                 val formParameters = call.receiveParameters()
-                println("After formParameters")
-                println(formParameters.toString())
                 // val id = call.parameters.getOrFail<Int>("id").toInt()
                 val id = formParameters.getOrFail("tpid").toInt()
                 val takInfo = loadTakInformation(id)
                 call.respond(
                     FreeMarkerContent(
                         "summary.ftl",
-                        mapOf("numOfContracts" to takInfo.contracts.size)
+                        mapOf(
+                            "numOfContracts" to takInfo.contracts.size,
+                            "plattforms" to com.example.models.ConnectionPoint.plattforms
+                        )
                     )
                 )
             }
@@ -54,6 +54,7 @@ fun Application.configureRouting() {
             }
         }
 
+        // The articles should be removed
         route("articles") {
             get {
                 // Show a list of articles
