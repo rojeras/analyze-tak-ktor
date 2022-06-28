@@ -6,7 +6,7 @@
         <#list plattforms as plattform>
             <div>
                 <h3>
-                    <a href="/articles/${plattform.id}">${plattform.platform}-${plattform.environment}</a>
+                    <a href="/tak/${plattform.id}">${plattform.platform}-${plattform.environment}</a>
                 </h3>
                 <p>
                     ${plattform.snapshotTime}

@@ -26,7 +26,9 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.internal.throwMissingFieldException
 import kotlinx.serialization.json.Json
 
 private const val BASE_URL = "http://api.ntjp.se/coop/api/v1/"
@@ -36,6 +38,7 @@ private const val BASE_URL = "http://api.ntjp.se/coop/api/v1/"
  *
  * @constructor Create empty Api client
  */
+@OptIn(ExperimentalSerializationApi::class)
 object ApiClient {
     val client: HttpClient
 
@@ -47,6 +50,7 @@ object ApiClient {
                     Json {
                         prettyPrint = true
                         isLenient = true
+                        explicitNulls = false
                     }
                 )
             }
@@ -69,17 +73,12 @@ data class ConnectionPoint(
     val environment: String,
     val snapshotTime: String,
 ) {
-    init {
-        println("init called for id = ${id}")
-    }
-
     companion object {
 
         lateinit var plattforms: List<ConnectionPoint>
 
         suspend fun load() {
-            val url = BASE_URL + "connectionPoints.json"
-
+            val url = BASE_URL + "connectionPoints"
             val client = ApiClient.client
 
             val response: HttpResponse = client.get(url)
@@ -87,7 +86,7 @@ data class ConnectionPoint(
 
             plattforms = response.body()
 
-            println("In load")
+            println("In load connectionPoints")
         }
     }
 }
@@ -96,22 +95,35 @@ data class ConnectionPoint(
  * Represent the response from a call to TAK-api InstalledContracts
  */
 @Serializable
-data class InstalledContracts(
+data class InstalledContract(
     val id: Int,
     val connectionPoint: ConnectionPoint,
-    val serviceContracts: ServiceContract
-)
+    val serviceContract: ServiceContract
+) {
+    companion object {
+        suspend fun load(connectionPointId: Int): List<InstalledContract> {
+            val url = BASE_URL + "installedContracts?connectionPointId=${connectionPointId}"
+            val client = ApiClient.client
+
+            val response: HttpResponse = client.get(url)
+            println(response.status)
+
+            val installedContracts: List<InstalledContract> = response.body()
+            return installedContracts
+        }
+    }
+}
 
 /**
- * Represent the response of a coll of TAK-api ServiceContracts
+ * Represent ServiceContract in the TAK-api (part of InstalledContract)
  *
- * @param answer A list of [InstalledContracts]
+ * @param answer A list of [InstalledContract]
  * @param lastChangeTime Time when the server cache was last updated.
  */
 @Serializable
 data class ServiceContract(
     val id: Int,
-    val name: String,
+    val name: String?,
     val namespace: String,
     val major: Int,
     val minor: Int

@@ -3,6 +3,7 @@ package com.example.plugins
 import com.example.models.Article
 import com.example.models.ConnectionPoint
 import com.example.models.articles
+import com.example.models.loadTakInformation
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
 import io.ktor.server.http.content.*
@@ -28,6 +29,17 @@ fun Application.configureRouting() {
         route("tak") {
             get("select") {
                 call.respond(FreeMarkerContent("select.ftl", mapOf("plattforms" to ConnectionPoint.plattforms)))
+            }
+            get("{id}") {
+                // Show TAK summary page for TAK with this id
+                val id = call.parameters.getOrFail<Int>("id").toInt()
+                val takInfo = loadTakInformation(id)
+                call.respond(
+                    FreeMarkerContent(
+                        "summary.ftl",
+                        mapOf("numOfContracts" to takInfo.contracts.size)
+                    )
+                )
             }
         }
 
