@@ -27,12 +27,15 @@ fun Application.configureRouting() {
         }
 
         route("tak") {
-            get("select") {
-                call.respond(FreeMarkerContent("select.ftl", mapOf("plattforms" to ConnectionPoint.plattforms)))
-            }
-            get("{id}") {
+
+            post {
                 // Show TAK summary page for TAK with this id
-                val id = call.parameters.getOrFail<Int>("id").toInt()
+                println("In get tak default")
+                val formParameters = call.receiveParameters()
+                println("After formParameters")
+                println(formParameters.toString())
+                // val id = call.parameters.getOrFail<Int>("id").toInt()
+                val id = formParameters.getOrFail("tpid").toInt()
                 val takInfo = loadTakInformation(id)
                 call.respond(
                     FreeMarkerContent(
@@ -41,11 +44,20 @@ fun Application.configureRouting() {
                     )
                 )
             }
+            get("select") {
+                call.respond(
+                    io.ktor.server.freemarker.FreeMarkerContent(
+                        "select.ftl",
+                        kotlin.collections.mapOf("plattforms" to com.example.models.ConnectionPoint.plattforms)
+                    )
+                )
+            }
         }
 
         route("articles") {
             get {
                 // Show a list of articles
+                println("In articles")
                 call.respond(FreeMarkerContent("index.ftl", mapOf("articles" to articles)))
             }
             get("new") {

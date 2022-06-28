@@ -4,7 +4,7 @@
     <div>
         <h3>Välj TAK (tjänsteplattform)</h3>
 
-        <form action="/tak" id="tpform">
+        <form action="/tak" id="tpform" method="post">
 
         </form>
 
