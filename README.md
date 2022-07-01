@@ -1,4 +1,5 @@
 # Teknologier att kolla
+* MVC (redux-liknande modell)
 * Freemarker
 * htmx
 * Pinegrow
