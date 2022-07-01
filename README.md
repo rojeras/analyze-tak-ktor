@@ -22,5 +22,9 @@
     * Antal felaktigheter
 * Detaljsidor
   * Vid val av en rad i summary-sidan så visas en detaljsida över aktuell information. Varierar lite beroende på vad man tittar på. 
+* Felsidor
+  * Motsvarar de felkontroller som pythonversionen skapar CSV för
+  * Som användare ska man kunna markera fel som skall åtgärdas
+  * En knapp möjliggör generering av JSON för markerade fel
 * Länkar
   * Ev lägger vi på länkar från vissa objekt till hippo och/eller TkView
