@@ -27,7 +27,6 @@ fun Application.configureRouting() {
         }
 
         route("tak") {
-
             post {
                 // Show TAK summary page for TAK with this id
                 val formParameters = call.receiveParameters()
@@ -45,6 +44,7 @@ fun Application.configureRouting() {
                 )
             }
             get("select") {
+                println("In tak/select")
                 call.respond(
                     io.ktor.server.freemarker.FreeMarkerContent(
                         "select.ftl",
@@ -97,6 +97,7 @@ fun Application.configureRouting() {
                         articles[index].body = body
                         call.respondRedirect("/articles/$id")
                     }
+
                     "delete" -> {
                         articles.removeIf { it.id == id }
                         call.respondRedirect("/articles")

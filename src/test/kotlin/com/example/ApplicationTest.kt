@@ -27,7 +27,6 @@ class ApplicationTest {
     @Test
     fun testTakApiPlattforms() = runBlocking {
         ConnectionPoint.load()
-
         assertEquals(ConnectionPoint.plattforms.size, 5, "Wrong number of connection points returned!")
     }
 

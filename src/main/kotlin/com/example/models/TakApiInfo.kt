@@ -28,7 +28,6 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.*
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.internal.throwMissingFieldException
 import kotlinx.serialization.json.Json
 
 private const val BASE_URL = "http://api.ntjp.se/coop/api/v1/"
@@ -71,7 +70,7 @@ data class ConnectionPoint(
     val id: Int,
     val platform: String,
     val environment: String,
-    val snapshotTime: String,
+    val snapshotTime: String
 ) {
     companion object {
 
@@ -102,14 +101,13 @@ data class InstalledContract(
 ) {
     companion object {
         suspend fun load(connectionPointId: Int): List<InstalledContract> {
-            val url = BASE_URL + "installedContracts?connectionPointId=${connectionPointId}"
+            val url = BASE_URL + "installedContracts?connectionPointId=$connectionPointId"
             val client = ApiClient.client
 
             val response: HttpResponse = client.get(url)
             println(response.status)
 
-            val installedContracts: List<InstalledContract> = response.body()
-            return installedContracts
+            return response.body()
         }
     }
 }
