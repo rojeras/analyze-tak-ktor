@@ -2,7 +2,7 @@
 * MVC (redux-liknande modell)
 * Freemarker
 * htmx
-* Pinegrow
+* Pinegrowx
 
 # Todo
 * Bygg vidare och hantera allt data från TAK-api
