@@ -34,8 +34,10 @@ fun Application.configureRouting() {
                     FreeMarkerContent(
                         "summary.ftl",
                         mapOf(
+                            "cpId" to id,
+                            "plattforms" to com.example.models.ConnectionPoint.plattforms,
                             "numOfContracts" to takInfo.contracts.size,
-                            "plattforms" to com.example.models.ConnectionPoint.plattforms
+                            "numOfLogicalAddresses" to takInfo.logicalAddress.size
                         )
                     )
                 )

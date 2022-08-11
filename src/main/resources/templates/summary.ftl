@@ -6,7 +6,8 @@
             Summanställning
         </h3>
         <p>
-            Antal tjänstekontrakt i denna TAK: ${numOfContracts}
+            Antal tjänstekontrakt: ${numOfContracts}<br>
+            Antal logiska adresser: ${numOfLogicalAddresses}
         </p>
         <hr>
         <p>

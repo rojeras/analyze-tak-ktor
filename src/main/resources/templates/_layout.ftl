@@ -18,11 +18,14 @@
         </form>
 
         <select id="tp" name="tpid" form="tpform" onchange="this.form.submit()">
-            <option style="display: none" >Välj</option>
+            <option style="display: none">Välj</option>
 
             <#list plattforms as plattform>
-
-                <option value="${plattform.id}">${plattform.platform}-${plattform.environment}</option>
+                <#if plattform.id == cpId>
+                    <option selected="selected" value="${plattform.id}">${plattform.platform}-${plattform.environment}</option>
+                <#else >
+                    <option value="${plattform.id}">${plattform.platform}-${plattform.environment}</option>
+                </#if>
 
             </#list>
         </select>
