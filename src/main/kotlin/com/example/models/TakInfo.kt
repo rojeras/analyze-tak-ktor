@@ -28,11 +28,20 @@ data class TakInfo(
         // Logical addresses from TAK-api are used as-is
         logicalAddress = LogicalAddress.load(cpId)
     }
+
+    companion object {
+        val takStore = mutableMapOf<Int, TakInfo>()
+    }
 }
 
 suspend fun obtainTakInfo(cpId: Int): TakInfo {
+    if (TakInfo.takStore.containsKey(cpId)) {
+        return TakInfo.takStore[cpId]!! // todo: Get rid of !!
+    }
+
     val takInfo = TakInfo(cpId)
     takInfo.load()
+    TakInfo.takStore[cpId] = takInfo
     return takInfo
 }
 
