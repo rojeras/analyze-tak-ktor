@@ -1,9 +1,6 @@
 package com.example.plugins
 
-import com.example.models.Article
-import com.example.models.ConnectionPoint
-import com.example.models.articles
-import com.example.models.loadTakInformation
+import com.example.models.*
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
 import io.ktor.server.http.content.*
@@ -32,7 +29,7 @@ fun Application.configureRouting() {
                 val formParameters = call.receiveParameters()
                 // val id = call.parameters.getOrFail<Int>("id").toInt()
                 val id = formParameters.getOrFail("tpid").toInt()
-                val takInfo = loadTakInformation(id)
+                val takInfo = obtainTakInfo(id)
                 call.respond(
                     FreeMarkerContent(
                         "summary.ftl",

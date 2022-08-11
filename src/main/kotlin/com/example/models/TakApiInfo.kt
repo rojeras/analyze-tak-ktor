@@ -126,3 +126,25 @@ data class ServiceContract(
     val major: Int,
     val minor: Int
 )
+
+/**
+ * Represent the response from a call to TAK-api LogicalAddresss
+ */
+@Serializable
+data class LogicalAddress(
+    val id: Int,
+    val logicalAddress: String,
+    val description: String
+) {
+    companion object {
+        suspend fun load(connectionPointId: Int): List<LogicalAddress> {
+            val url = BASE_URL + "logicalAddresss?connectionPointId=$connectionPointId"
+            val client = ApiClient.client
+
+            val response: HttpResponse = client.get(url)
+            println(response.status)
+
+            return response.body()
+        }
+    }
+}

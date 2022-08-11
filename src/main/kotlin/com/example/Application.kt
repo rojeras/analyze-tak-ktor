@@ -3,6 +3,7 @@ package com.example
 import com.example.models.ConnectionPoint
 import com.example.plugins.*
 import io.ktor.server.application.*
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 fun main(args: Array<String>) {
@@ -13,14 +14,16 @@ fun main(args: Array<String>) {
     runBlocking {
         println("Server starting")
 
-        ConnectionPoint.load()
+        launch {
+            ConnectionPoint.load()
 
-        for (cp in ConnectionPoint.plattforms) {
-            val id = cp.id
-            println("$id ${cp.platform}-${cp.environment}")
+            for (cp in ConnectionPoint.plattforms) {
+                val id = cp.id
+                println("$id ${cp.platform}-${cp.environment}")
+            }
+
+            io.ktor.server.netty.EngineMain.main(args)
         }
-
-        io.ktor.server.netty.EngineMain.main(args)
     }
 }
 
