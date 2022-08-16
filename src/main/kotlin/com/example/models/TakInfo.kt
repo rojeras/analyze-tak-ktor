@@ -11,6 +11,8 @@ data class TakInfo(
 ) {
     val contracts = mutableListOf<Contract>()
     var logicalAddress: List<LogicalAddress> = listOf()
+    var serviceConsumers: List<ServiceConsumer> = listOf()
+    var serviceProducers: List<ServiceProducer> = listOf()
 
     suspend fun load() {
         // Contracts are created based on a subset of the information from InstalledContracts.
@@ -27,6 +29,12 @@ data class TakInfo(
 
         // Logical addresses from TAK-api are used as-is
         logicalAddress = LogicalAddress.load(cpId)
+
+        // Service consumers are used as-is
+        serviceConsumers = ServiceConsumer.load(cpId)
+
+        // Service producers are used as-is
+        serviceProducers = ServiceProducer.load(cpId)
     }
 
     companion object {

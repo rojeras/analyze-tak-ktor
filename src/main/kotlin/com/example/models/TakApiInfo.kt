@@ -148,3 +148,47 @@ data class LogicalAddress(
         }
     }
 }
+
+/**
+* Represent the response from a call to TAK-api ServiceConsumers
+*/
+@Serializable
+data class ServiceConsumer(
+    val id: Int,
+    val hsaId: String,
+    val description: String
+) {
+    companion object {
+        suspend fun load(connectionPointId: Int): List<ServiceConsumer> {
+            val url = BASE_URL + "serviceConsumers?connectionPointId=$connectionPointId"
+            val client = ApiClient.client
+
+            val response: HttpResponse = client.get(url)
+            println(response.status)
+
+            return response.body()
+        }
+    }
+}
+
+/**
+ * Represent the response from a call to TAK-api ServiceProducers
+ */
+@Serializable
+data class ServiceProducer(
+    val id: Int,
+    val hsaId: String,
+    val description: String
+) {
+    companion object {
+        suspend fun load(connectionPointId: Int): List<ServiceProducer> {
+            val url = BASE_URL + "serviceProducers?connectionPointId=$connectionPointId"
+            val client = ApiClient.client
+
+            val response: HttpResponse = client.get(url)
+            println(response.status)
+
+            return response.body()
+        }
+    }
+}

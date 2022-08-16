@@ -52,4 +52,18 @@ class ApplicationTest {
         assertTrue(takInfo5.logicalAddress.size > 4000 && takInfo5.logicalAddress.size < 4500, "Wrong number of logical addresses")
     }
 
+    @Test
+    fun testTakInfo3() = runBlocking {
+        val takInfo5 = obtainTakInfo(5)
+        println(takInfo5.serviceConsumers.size)
+
+        assertTrue(takInfo5.serviceConsumers.size > 30 && takInfo5.serviceConsumers.size < 45, "Wrong number of service consumers")
+    }
+    @Test
+    fun testTakInfo4() = runBlocking {
+        val takInfo5 = obtainTakInfo(5)
+        println(takInfo5.serviceProducers.size)
+
+        assertTrue(takInfo5.serviceProducers.size > 18 && takInfo5.serviceProducers.size < 30, "Wrong number of service consumers")
+    }
 }
