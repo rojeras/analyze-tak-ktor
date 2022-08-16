@@ -47,7 +47,10 @@ fun Application.configureRouting() {
                 call.respond(
                     io.ktor.server.freemarker.FreeMarkerContent(
                         "select.ftl",
-                        kotlin.collections.mapOf("plattforms" to com.example.models.ConnectionPoint.plattforms)
+                        kotlin.collections.mapOf(
+                            "plattforms" to com.example.models.ConnectionPoint.plattforms,
+                            "cpId" to 0
+                        )
                     )
                 )
             }
