@@ -24,27 +24,16 @@ fun Application.configureRouting() {
         }
 
         route("tak") {
+            get("{tpId}") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(mkSummary(id))
+            }
             post {
                 // Show TAK summary page for TAK with this id
-                val formParameters = call.receiveParameters()
-                // val id = call.parameters.getOrFail<Int>("id").toInt()
-                val id = formParameters.getOrFail("tpid").toInt()
-                val takInfo = obtainTakInfo(id)
-                call.respond(
-                    FreeMarkerContent(
-                        "summary.ftl",
-                        mapOf(
-                            "cpId" to id,
-                            "plattforms" to com.example.models.ConnectionPoint.plattforms,
-                            "numOfConsumers" to takInfo.serviceConsumers.size,
-                            "numOfProducers" to takInfo.serviceProducers.size,
-                            "numOfContracts" to takInfo.contracts.size,
-                            "numOfLogicalAddresses" to takInfo.logicalAddress.size
-                        )
-                    )
-                )
+                val id = call.receiveParameters().getOrFail("tpid").toInt()
+                call.respond(mkSummary(id))
             }
-            get("select") {
+            get("") {
                 println("In tak/select")
                 call.respond(
                     io.ktor.server.freemarker.FreeMarkerContent(
@@ -110,4 +99,19 @@ fun Application.configureRouting() {
             }
         }
     }
+}
+
+suspend fun mkSummary(id: Int): FreeMarkerContent {
+    val takInfo = obtainTakInfo(id)
+    return FreeMarkerContent(
+        "summary.ftl",
+        mapOf(
+            "cpId" to id,
+            "plattforms" to com.example.models.ConnectionPoint.plattforms,
+            "numOfConsumers" to takInfo.serviceConsumers.size,
+            "numOfProducers" to takInfo.serviceProducers.size,
+            "numOfContracts" to takInfo.contracts.size,
+            "numOfLogicalAddresses" to takInfo.logicalAddress.size
+        )
+    )
 }
