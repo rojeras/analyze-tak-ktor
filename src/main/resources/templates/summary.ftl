@@ -6,6 +6,8 @@
             Summanställning
         </h3>
         <p>
+            Antal tjänstekonsumenter: ${numOfConsumers}<br>
+            Antal tjänsteproducenter: ${numOfProducers}<br>
             Antal tjänstekontrakt: ${numOfContracts}<br>
             Antal logiska adresser: ${numOfLogicalAddresses}
         </p>

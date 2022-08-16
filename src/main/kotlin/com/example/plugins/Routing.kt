@@ -36,6 +36,8 @@ fun Application.configureRouting() {
                         mapOf(
                             "cpId" to id,
                             "plattforms" to com.example.models.ConnectionPoint.plattforms,
+                            "numOfConsumers" to takInfo.serviceConsumers.size,
+                            "numOfProducers" to takInfo.serviceProducers.size,
                             "numOfContracts" to takInfo.contracts.size,
                             "numOfLogicalAddresses" to takInfo.logicalAddress.size
                         )

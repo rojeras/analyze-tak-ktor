@@ -178,7 +178,7 @@ data class ServiceConsumer(
 data class ServiceProducer(
     val id: Int,
     val hsaId: String,
-    val description: String
+    val description: String? = ""
 ) {
     companion object {
         suspend fun load(connectionPointId: Int): List<ServiceProducer> {
