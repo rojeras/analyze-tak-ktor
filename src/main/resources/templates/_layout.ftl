@@ -12,8 +12,8 @@
 
     <div>
         <h3>Välj TAK (tjänsteplattform)</h3>
-
-        <form action="/tak" id="tpform" method="post">
+        <!--
+        <form action="/tak" id="tpform" method="get">
 
         </form>
 
@@ -29,6 +29,13 @@
 
             </#list>
         </select>
+        -->
+        <#list plattforms as plattform>
+
+            <a href="tak/${plattform.id}">${plattform.platform}-${plattform.environment}</a>
+            <br>
+
+        </#list>
     </div>
 
     <hr>

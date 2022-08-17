@@ -3,7 +3,7 @@
 <@layout.header>
     <div>
         <h3>
-            Summanställning
+            Sammanställning
         </h3>
         <p>
             Antal tjänstekonsumenter: ${numOfConsumers}<br>
