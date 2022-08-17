@@ -28,19 +28,15 @@ fun Application.configureRouting() {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
                 call.respond(mkSummary(id))
             }
-            post {
-                // Show TAK summary page for TAK with this id
-                val id = call.receiveParameters().getOrFail("tpid").toInt()
-                call.respond(mkSummary(id))
-            }
+
+
             get("") {
                 println("In tak/select")
                 call.respond(
                     io.ktor.server.freemarker.FreeMarkerContent(
                         "select.ftl",
                         kotlin.collections.mapOf(
-                            "plattforms" to com.example.models.ConnectionPoint.plattforms,
-                            "cpId" to 0
+                            "plattforms" to com.example.models.ConnectionPoint.plattforms, "cpId" to 0
                         )
                     )
                 )
@@ -107,6 +103,7 @@ suspend fun mkSummary(id: Int): FreeMarkerContent {
         "summary.ftl",
         mapOf(
             "cpId" to id,
+            "plattform" to ConnectionPoint.getPlattform(id),
             "plattforms" to com.example.models.ConnectionPoint.plattforms,
             "numOfConsumers" to takInfo.serviceConsumers.size,
             "numOfProducers" to takInfo.serviceProducers.size,

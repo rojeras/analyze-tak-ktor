@@ -3,7 +3,7 @@
 <@layout.header>
     <div>
         <h3>
-            Sammanställning
+            Sammanställning för ${plattform.platform}-${plattform.environment}
         </h3>
         <p>
             Antal tjänstekonsumenter: ${numOfConsumers}<br>

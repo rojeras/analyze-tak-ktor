@@ -87,6 +87,10 @@ data class ConnectionPoint(
 
             println("In load connectionPoints")
         }
+
+        fun getPlattform(cpId: Int): ConnectionPoint? {
+            return plattforms.filter { it.id == cpId }[0]
+        }
     }
 }
 

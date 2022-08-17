@@ -30,6 +30,12 @@ class ApplicationTest {
     }
 
     @Test
+    fun testTakApiPlattformGetFun() = runBlocking {
+        ConnectionPoint.load()
+        val plattform = ConnectionPoint.getPlattform(5)
+        assertEquals(plattform!!.id, 5, "ConnectionPoint.getPlattform() does not return expected cp!")
+    }
+    @Test
     fun testInstalledContracts() = runBlocking {
         val installedContracts = InstalledContract.load(5)
 
