@@ -1,6 +1,7 @@
 package com.example.plugins
 
 import com.example.models.*
+import com.example.view.mkConsumerViewData
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
 import io.ktor.server.http.content.*
@@ -29,6 +30,25 @@ fun Application.configureRouting() {
                 call.respond(mkSummary(id))
             }
 
+            get("{tpId}/consumers") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                val plattform = ConnectionPoint.getPlattform(id)!!
+                val plattformName = "${plattform.platform}-${plattform.environment}"
+                // call.respond(mkSummary(id))
+                val heading = "Tjänstekonsumenter i $plattformName"
+                val consumerViewData = mkConsumerViewData(id)
+                call.respond(
+                    io.ktor.server.freemarker.FreeMarkerContent(
+                        "list3col.ftl",
+                        kotlin.collections.mapOf(
+                            "heading" to heading,
+                            "tableHeadings" to consumerViewData.headings,
+                            "viewData" to consumerViewData.content
+                        )
+                    )
+                )
+                // call.respondText("Lista konsumenter i tp $id")
+            }
 
             get("") {
                 println("In tak/select")
@@ -36,7 +56,8 @@ fun Application.configureRouting() {
                     io.ktor.server.freemarker.FreeMarkerContent(
                         "select.ftl",
                         kotlin.collections.mapOf(
-                            "plattforms" to com.example.models.ConnectionPoint.plattforms, "cpId" to 0
+                            "plattforms" to com.example.models.ConnectionPoint.plattforms,
+                            "cpId" to 0
                         )
                     )
                 )
