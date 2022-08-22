@@ -154,40 +154,33 @@ data class LogicalAddress(
 }
 
 /**
-* Represent the response from a call to TAK-api ServiceConsumers
-*/
+ * A service component can be of one of two types.
+ */
+enum class ComponentType(val label: String) {
+    CONSUMER("consumer"),
+    PRODUCER("producer")
+}
+
+/**
+ * Represent the response from a call to TAK-api ServiceConsumer or ServiceProducer
+ */
 @Serializable
-data class ServiceConsumer(
+data class ServiceComponent(
     val id: Int,
     val hsaId: String,
     val description: String
 ) {
     companion object {
-        suspend fun load(connectionPointId: Int): List<ServiceConsumer> {
-            val url = BASE_URL + "serviceConsumers?connectionPointId=$connectionPointId"
+
+        suspend fun load(componentType: ComponentType, connectionPointId: Int): List<ServiceComponent> {
+            val resource: String = when (componentType) {
+                ComponentType.CONSUMER -> "serviceConsumers"
+                ComponentType.PRODUCER -> "serviceProducers"
+            }
+
             val client = ApiClient.client
 
-            val response: HttpResponse = client.get(url)
-            println(response.status)
-
-            return response.body()
-        }
-    }
-}
-
-/**
- * Represent the response from a call to TAK-api ServiceProducers
- */
-@Serializable
-data class ServiceProducer(
-    val id: Int,
-    val hsaId: String,
-    val description: String? = ""
-) {
-    companion object {
-        suspend fun load(connectionPointId: Int): List<ServiceProducer> {
-            val url = BASE_URL + "serviceProducers?connectionPointId=$connectionPointId"
-            val client = ApiClient.client
+            val url = "$BASE_URL$resource?connectionPointId=$connectionPointId"
 
             val response: HttpResponse = client.get(url)
             println(response.status)

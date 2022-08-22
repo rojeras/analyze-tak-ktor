@@ -1,7 +1,7 @@
 package com.example.plugins
 
 import com.example.models.*
-import com.example.view.mkConsumerViewData
+import com.example.view.mkComponentViewData
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
 import io.ktor.server.http.content.*
@@ -27,27 +27,17 @@ fun Application.configureRouting() {
         route("tak") {
             get("{tpId}") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(mkSummary(id))
+                call.respond(mkSummaryView(id))
             }
 
             get("{tpId}/consumers") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                val plattform = ConnectionPoint.getPlattform(id)!!
-                val plattformName = "${plattform.platform}-${plattform.environment}"
-                // call.respond(mkSummary(id))
-                val heading = "Tjänstekonsumenter i $plattformName"
-                val consumerViewData = mkConsumerViewData(id)
-                call.respond(
-                    io.ktor.server.freemarker.FreeMarkerContent(
-                        "list3col.ftl",
-                        kotlin.collections.mapOf(
-                            "heading" to heading,
-                            "tableHeadings" to consumerViewData.headings,
-                            "viewData" to consumerViewData.content
-                        )
-                    )
-                )
-                // call.respondText("Lista konsumenter i tp $id")
+                call.respond(mkComponentView(ComponentType.CONSUMER, id))
+            }
+
+            get("{tpId}/producers") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(mkComponentView(ComponentType.PRODUCER, id))
             }
 
             get("") {
@@ -118,7 +108,7 @@ fun Application.configureRouting() {
     }
 }
 
-suspend fun mkSummary(id: Int): FreeMarkerContent {
+suspend fun mkSummaryView(id: Int): FreeMarkerContent {
     val takInfo = obtainTakInfo(id)
     return FreeMarkerContent(
         "summary.ftl",
@@ -130,6 +120,27 @@ suspend fun mkSummary(id: Int): FreeMarkerContent {
             "numOfProducers" to takInfo.serviceProducers.size,
             "numOfContracts" to takInfo.contracts.size,
             "numOfLogicalAddresses" to takInfo.logicalAddress.size
+        )
+    )
+}
+
+suspend fun mkComponentView(componentType: ComponentType, id: Int): FreeMarkerContent {
+    val plattform = ConnectionPoint.getPlattform(id)!!
+    val plattformName = "${plattform.platform}-${plattform.environment}"
+
+    val heading = when (componentType) {
+        ComponentType.CONSUMER -> "Tjänstekonsumenter i $plattformName"
+        ComponentType.PRODUCER -> "Tjänsteproducenter i $plattformName"
+    }
+
+    val componentViewData = mkComponentViewData(id, componentType)
+
+    return io.ktor.server.freemarker.FreeMarkerContent(
+        "tableview.ftl",
+        kotlin.collections.mapOf(
+            "heading" to heading,
+            "tableHeadings" to componentViewData.headings,
+            "viewData" to componentViewData.content
         )
     )
 }

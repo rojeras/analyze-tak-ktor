@@ -11,8 +11,12 @@ data class TakInfo(
 ) {
     val contracts = mutableListOf<Contract>()
     var logicalAddress: List<LogicalAddress> = listOf()
-    var serviceConsumers: List<ServiceConsumer> = listOf()
-    var serviceProducers: List<ServiceProducer> = listOf()
+
+    // var serviceConsumers: List<ServiceConsumer> = listOf()
+    var serviceConsumers: List<ServiceComponent> = listOf<ServiceComponent>()
+
+    // var serviceProducers: List<ServiceProducer> = listOf()
+    var serviceProducers: List<ServiceComponent> = listOf()
 
     suspend fun load() {
         // Contracts are created based on a subset of the information from InstalledContracts.
@@ -31,10 +35,14 @@ data class TakInfo(
         logicalAddress = LogicalAddress.load(cpId)
 
         // Service consumers are used as-is
-        serviceConsumers = ServiceConsumer.load(cpId)
+        // serviceConsumers = ServiceConsumer.load(cpId)
+        serviceConsumers = ServiceComponent.load(ComponentType.CONSUMER, cpId)
 
         // Service producers are used as-is
-        serviceProducers = ServiceProducer.load(cpId)
+        // serviceProducers = ServiceProducer.load(cpId)
+        serviceProducers = ServiceComponent.load(ComponentType.PRODUCER, cpId)
+
+        println("Klar")
     }
 
     companion object {
