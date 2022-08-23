@@ -1,6 +1,7 @@
 package com.example.plugins
 
 import com.example.models.*
+import com.example.view.mkAuthorizationViewData
 import com.example.view.mkComponentViewData
 import com.example.view.mkContractViewData
 import com.example.view.mkLogicalAddressViewData
@@ -50,6 +51,11 @@ fun Application.configureRouting() {
             get("{tpId}/contracts") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
                 call.respond(mkContractView(id))
+            }
+
+            get("{tpId}/authorizations") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(mkAuthorizationView(id))
             }
 
             get("") {
@@ -186,6 +192,23 @@ suspend fun mkContractView(id: Int): FreeMarkerContent {
             "heading" to heading,
             "tableHeadings" to contractViewData.headings,
             "viewData" to contractViewData.content
+        )
+    )
+}
+
+suspend fun mkAuthorizationView(id: Int): FreeMarkerContent {
+    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
+
+    val heading = "Anropsbehörigheter i $plattformName"
+
+    val authViewData = mkAuthorizationViewData(id)
+
+    return io.ktor.server.freemarker.FreeMarkerContent(
+        "tableview.ftl",
+        kotlin.collections.mapOf(
+            "heading" to heading,
+            "tableHeadings" to authViewData.headings,
+            "viewData" to authViewData.content
         )
     )
 }

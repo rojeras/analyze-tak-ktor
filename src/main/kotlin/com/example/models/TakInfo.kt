@@ -18,6 +18,8 @@ data class TakInfo(
     // var serviceProducers: List<ServiceProducer> = listOf()
     var serviceProducers: List<ServiceComponent> = listOf()
 
+    val authorizations = mutableListOf<Authorization>()
+
     suspend fun load() {
         // Contracts are created based on a subset of the information from InstalledContracts.
         val installedContracts = InstalledContract.load(cpId)
@@ -41,6 +43,18 @@ data class TakInfo(
         // Service producers are used as-is
         // serviceProducers = ServiceProducer.load(cpId)
         serviceProducers = ServiceComponent.load(ComponentType.PRODUCER, cpId)
+
+        val cooperations = Cooperation.load(cpId)
+        for (coop in cooperations) {
+            authorizations.add(
+                Authorization(
+                    coop.id,
+                    coop.serviceConsumer.id,
+                    coop.logicalAddress.id,
+                    coop.serviceContract.id
+                )
+            )
+        }
 
         println("Klar")
     }

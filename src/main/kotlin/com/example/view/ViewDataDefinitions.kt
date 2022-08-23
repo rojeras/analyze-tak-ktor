@@ -1,7 +1,6 @@
 package com.example.view
 
-import com.example.models.ComponentType
-import com.example.models.obtainTakInfo
+import com.example.models.*
 
 data class ViewData(
     val headings: List<String>,
@@ -49,4 +48,24 @@ suspend fun mkContractViewData(cpId: Int): ViewData {
         content.add(listOf<String>(contract.id.toString(), contract.namespace, contract.major.toString()))
     }
     return ViewData(listOf("Id", "Tjänstekontraktets namnrymd", "Major"), content)
+}
+
+suspend fun mkAuthorizationViewData(cpId: Int): ViewData {
+    val takInfo = obtainTakInfo(cpId)
+
+    val authorizations = takInfo.authorizations
+
+    val content = mutableListOf<List<String>>()
+
+    for (auth in authorizations) {
+        content.add(
+            listOf<String>(
+                auth.id.toString(),
+                ServiceComponent.mapped[auth.serviceComponentId]!!.description,
+                ServiceContract.mapped[auth.serviceContractId]!!.namespace,
+                LogicalAddress.mapped[auth.logicalAddressId]!!.description
+            )
+        )
+    }
+    return ViewData(listOf("Id", "Konsument-id", "Kontrakt-id", "Logisk adress-id"), content)
 }

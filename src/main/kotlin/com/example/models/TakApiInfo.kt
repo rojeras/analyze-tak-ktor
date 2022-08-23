@@ -131,7 +131,15 @@ data class ServiceContract(
     val namespace: String,
     val major: Int,
     val minor: Int
-)
+) {
+    init {
+        mapped[id] = this
+    }
+
+    companion object {
+        val mapped = mutableMapOf<Int, ServiceContract>()
+    }
+}
 
 /**
  * Represent the response from a call to TAK-api LogicalAddresss
@@ -142,7 +150,14 @@ data class LogicalAddress(
     val logicalAddress: String,
     val description: String
 ) {
+    init {
+        mapped[id] = this
+    }
+
     companion object {
+
+        val mapped = mutableMapOf<Int, LogicalAddress>()
+
         suspend fun load(connectionPointId: Int): List<LogicalAddress> {
             val url = BASE_URL + "logicalAddresss?connectionPointId=$connectionPointId"
             val client = ApiClient.client
@@ -172,7 +187,14 @@ data class ServiceComponent(
     val hsaId: String,
     val description: String
 ) {
+    init {
+        mapped[id] = this
+    }
+
     companion object {
+
+        val mapped = mutableMapOf<Int, ServiceComponent>()
+        val listed: List<ServiceComponent> = mapped.values.toList()
 
         suspend fun load(componentType: ComponentType, connectionPointId: Int): List<ServiceComponent> {
             val resource: String = when (componentType) {
@@ -189,5 +211,62 @@ data class ServiceComponent(
 
             return response.body()
         }
+    }
+}
+
+/**
+ * Represent the response from a call to TAK-api Cooperation (anropsbehörighet)
+ */
+@Serializable
+data class Cooperation(
+    val id: Int,
+    val serviceConsumer: ServiceComponent,
+    val logicalAddress: LogicalAddress,
+    val serviceContract: ServiceContract
+) {
+    init {
+        mapped[id] = this
+    }
+
+    companion object {
+
+        val mapped = mutableMapOf<Int, Cooperation>()
+        val listed: List<Cooperation> = mapped.values.toList()
+        suspend fun load(connectionPointId: Int): List<Cooperation> {
+            val url =
+                BASE_URL + "cooperations?connectionPointId=$connectionPointId&include=logicalAddress%2CserviceContract%2CserviceConsumer"
+            val client = ApiClient.client
+
+            val response: HttpResponse = client.get(url)
+            println(response.status)
+
+            return response.body()
+        }
+    }
+}
+
+/**
+ * Authorization
+ * Represent a consumer authorization.
+ *
+ * @property id
+ * @property serviceComponentId
+ * @property logicalAddressId
+ * @property serviceContractId
+ * @constructor Create empty Authorization
+ */
+@Serializable
+data class Authorization(
+    val id: Int,
+    val serviceComponentId: Int,
+    val logicalAddressId: Int,
+    val serviceContractId: Int
+) {
+    init {
+        mapped[id] = this
+    }
+
+    companion object {
+        val mapped = mutableMapOf<Int, Authorization>()
     }
 }
