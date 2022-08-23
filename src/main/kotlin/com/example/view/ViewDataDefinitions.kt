@@ -67,5 +67,23 @@ suspend fun mkAuthorizationViewData(cpId: Int): ViewData {
             )
         )
     }
-    return ViewData(listOf("Id", "Konsument-id", "Kontrakt-id", "Logisk adress-id"), content)
+    return ViewData(listOf("Id", "Konsument", "Kontrakt", "Logisk adress"), content)
+}
+
+suspend fun mkRoutingViewData(cpId: Int): ViewData {
+    val takInfo = obtainTakInfo(cpId)
+
+    val content = mutableListOf<List<String>>()
+
+    for (routing in takInfo.routings) {
+        content.add(
+            listOf<String>(
+                routing.id.toString(),
+                ServiceComponent.mapped[routing.serviceComponentId]!!.description,
+                ServiceContract.mapped[routing.serviceContractId]!!.namespace,
+                LogicalAddress.mapped[routing.logicalAddressId]!!.description
+            )
+        )
+    }
+    return ViewData(listOf("Id", "Tjänsteproducent", "Kontrakt", "Logisk adress"), content)
 }

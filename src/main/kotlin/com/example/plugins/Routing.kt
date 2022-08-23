@@ -1,10 +1,7 @@
 package com.example.plugins
 
 import com.example.models.*
-import com.example.view.mkAuthorizationViewData
-import com.example.view.mkComponentViewData
-import com.example.view.mkContractViewData
-import com.example.view.mkLogicalAddressViewData
+import com.example.view.*
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
 import io.ktor.server.http.content.*
@@ -56,6 +53,11 @@ fun Application.configureRouting() {
             get("{tpId}/authorizations") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
                 call.respond(mkAuthorizationView(id))
+            }
+
+            get("{tpId}/routings") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(mkRoutingView(id))
             }
 
             get("") {
@@ -137,7 +139,9 @@ suspend fun mkSummaryView(id: Int): FreeMarkerContent {
             "numOfConsumers" to takInfo.serviceConsumers.size,
             "numOfProducers" to takInfo.serviceProducers.size,
             "numOfContracts" to takInfo.contracts.size,
-            "numOfLogicalAddresses" to takInfo.logicalAddresses.size
+            "numOfLogicalAddresses" to takInfo.logicalAddresses.size,
+            "numOfAuthorizations" to takInfo.authorizations.size,
+            "numOfRoutings" to takInfo.routings.size
         )
     )
 }
@@ -209,6 +213,23 @@ suspend fun mkAuthorizationView(id: Int): FreeMarkerContent {
             "heading" to heading,
             "tableHeadings" to authViewData.headings,
             "viewData" to authViewData.content
+        )
+    )
+}
+
+suspend fun mkRoutingView(id: Int): FreeMarkerContent {
+    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
+
+    val heading = "Vägval i $plattformName"
+
+    val routingViewData = mkRoutingViewData(id)
+
+    return io.ktor.server.freemarker.FreeMarkerContent(
+        "tableview.ftl",
+        kotlin.collections.mapOf(
+            "heading" to heading,
+            "tableHeadings" to routingViewData.headings,
+            "viewData" to routingViewData.content
         )
     )
 }

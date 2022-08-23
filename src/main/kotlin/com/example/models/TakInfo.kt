@@ -20,6 +20,8 @@ data class TakInfo(
 
     val authorizations = mutableListOf<Authorization>()
 
+    val routings = mutableListOf<Routing>()
+
     suspend fun load() {
         // Contracts are created based on a subset of the information from InstalledContracts.
         val installedContracts = InstalledContract.load(cpId)
@@ -52,6 +54,21 @@ data class TakInfo(
                     coop.serviceConsumer.id,
                     coop.logicalAddress.id,
                     coop.serviceContract.id
+                )
+            )
+        }
+
+        println("Klar")
+
+        val productions = ServiceProduction.load(cpId)
+        for (production in productions) {
+            this.routings.add(
+                Routing(
+                    production.id,
+                    production.serviceProducer.id,
+                    production.logicalAddress.id,
+                    production.serviceContract.id,
+                    production.rivtaProfile
                 )
             )
         }

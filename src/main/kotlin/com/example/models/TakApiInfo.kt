@@ -50,6 +50,7 @@ object ApiClient {
                         prettyPrint = true
                         isLenient = true
                         explicitNulls = false
+                        ignoreUnknownKeys = true
                     }
                 )
             }
@@ -231,7 +232,7 @@ data class Cooperation(
     companion object {
 
         val mapped = mutableMapOf<Int, Cooperation>()
-        val listed: List<Cooperation> = mapped.values.toList()
+
         suspend fun load(connectionPointId: Int): List<Cooperation> {
             val url =
                 BASE_URL + "cooperations?connectionPointId=$connectionPointId&include=logicalAddress%2CserviceContract%2CserviceConsumer"
@@ -268,5 +269,44 @@ data class Authorization(
 
     companion object {
         val mapped = mutableMapOf<Int, Authorization>()
+    }
+}
+
+@Serializable
+data class ServiceProduction(
+    val id: Int,
+    val rivtaProfile: String,
+    val serviceProducer: ServiceComponent,
+    val logicalAddress: LogicalAddress,
+    val serviceContract: ServiceContract
+) {
+    companion object {
+        suspend fun load(connectionPointId: Int): List<ServiceProduction> {
+            val url =
+                BASE_URL + "serviceProductions?connectionPointId=$connectionPointId&include=logicalAddress%2CserviceContract%2CserviceProducer"
+            val client = ApiClient.client
+
+            val response: HttpResponse = client.get(url)
+            println(response.status)
+
+            return response.body()
+        }
+    }
+}
+
+@Serializable
+data class Routing(
+    val id: Int,
+    val serviceComponentId: Int,
+    val logicalAddressId: Int,
+    val serviceContractId: Int,
+    val rivtaProfile: String
+) {
+    init {
+        mapped[id] = this
+    }
+
+    companion object {
+        val mapped = mutableMapOf<Int, Routing>()
     }
 }

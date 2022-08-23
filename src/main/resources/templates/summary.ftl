@@ -9,7 +9,9 @@
             Antal tjänstekonsumenter: ${numOfConsumers}<br>
             Antal tjänsteproducenter: ${numOfProducers}<br>
             Antal tjänstekontrakt: ${numOfContracts}<br>
-            Antal logiska adresser: ${numOfLogicalAddresses}
+            Antal logiska adresser: ${numOfLogicalAddresses}<br>
+            Antal anropsbehörigheter: ${numOfAuthorizations}<br>
+            Antal vägval: ${numOfRoutings}
         </p>
         <hr>
         <p>
