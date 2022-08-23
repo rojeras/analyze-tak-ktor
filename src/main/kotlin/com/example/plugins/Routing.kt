@@ -2,6 +2,8 @@ package com.example.plugins
 
 import com.example.models.*
 import com.example.view.mkComponentViewData
+import com.example.view.mkContractViewData
+import com.example.view.mkLogicalAddressViewData
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
 import io.ktor.server.http.content.*
@@ -38,6 +40,16 @@ fun Application.configureRouting() {
             get("{tpId}/producers") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
                 call.respond(mkComponentView(ComponentType.PRODUCER, id))
+            }
+
+            get("{tpId}/logicaladdress") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(mkLogicalAddressView(id))
+            }
+
+            get("{tpId}/contracts") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(mkContractView(id))
             }
 
             get("") {
@@ -119,14 +131,13 @@ suspend fun mkSummaryView(id: Int): FreeMarkerContent {
             "numOfConsumers" to takInfo.serviceConsumers.size,
             "numOfProducers" to takInfo.serviceProducers.size,
             "numOfContracts" to takInfo.contracts.size,
-            "numOfLogicalAddresses" to takInfo.logicalAddress.size
+            "numOfLogicalAddresses" to takInfo.logicalAddresses.size
         )
     )
 }
 
 suspend fun mkComponentView(componentType: ComponentType, id: Int): FreeMarkerContent {
-    val plattform = ConnectionPoint.getPlattform(id)!!
-    val plattformName = "${plattform.platform}-${plattform.environment}"
+    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
 
     val heading = when (componentType) {
         ComponentType.CONSUMER -> "Tjänstekonsumenter i $plattformName"
@@ -141,6 +152,40 @@ suspend fun mkComponentView(componentType: ComponentType, id: Int): FreeMarkerCo
             "heading" to heading,
             "tableHeadings" to componentViewData.headings,
             "viewData" to componentViewData.content
+        )
+    )
+}
+
+suspend fun mkLogicalAddressView(id: Int): FreeMarkerContent {
+    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
+
+    val heading = "Logiska adresser i $plattformName"
+
+    val laViewData = mkLogicalAddressViewData(id)
+
+    return io.ktor.server.freemarker.FreeMarkerContent(
+        "tableview.ftl",
+        kotlin.collections.mapOf(
+            "heading" to heading,
+            "tableHeadings" to laViewData.headings,
+            "viewData" to laViewData.content
+        )
+    )
+}
+
+suspend fun mkContractView(id: Int): FreeMarkerContent {
+    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
+
+    val heading = "Tjänstekontrakt i $plattformName"
+
+    val contractViewData = mkContractViewData(id)
+
+    return io.ktor.server.freemarker.FreeMarkerContent(
+        "tableview.ftl",
+        kotlin.collections.mapOf(
+            "heading" to heading,
+            "tableHeadings" to contractViewData.headings,
+            "viewData" to contractViewData.content
         )
     )
 }

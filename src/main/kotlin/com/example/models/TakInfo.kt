@@ -10,7 +10,7 @@ data class TakInfo(
     val cpId: Int
 ) {
     val contracts = mutableListOf<Contract>()
-    var logicalAddress: List<LogicalAddress> = listOf()
+    var logicalAddresses: List<LogicalAddress> = listOf()
 
     // var serviceConsumers: List<ServiceConsumer> = listOf()
     var serviceConsumers: List<ServiceComponent> = listOf<ServiceComponent>()
@@ -32,7 +32,7 @@ data class TakInfo(
         }
 
         // Logical addresses from TAK-api are used as-is
-        logicalAddress = LogicalAddress.load(cpId)
+        logicalAddresses = LogicalAddress.load(cpId)
 
         // Service consumers are used as-is
         // serviceConsumers = ServiceConsumer.load(cpId)

@@ -72,6 +72,8 @@ data class ConnectionPoint(
     val environment: String,
     val snapshotTime: String
 ) {
+    fun getPlattformName(): String = "${this.platform}-${this.environment}"
+
     companion object {
 
         lateinit var plattforms: List<ConnectionPoint>

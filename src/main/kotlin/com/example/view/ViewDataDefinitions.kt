@@ -24,3 +24,29 @@ suspend fun mkComponentViewData(cpId: Int, componentType: ComponentType): ViewDa
     }
     return ViewData(listOf("Id", "HsaId", "Beskrivning"), content)
 }
+
+suspend fun mkLogicalAddressViewData(cpId: Int): ViewData {
+    val takInfo = obtainTakInfo(cpId)
+
+    val logicalAddresses = takInfo.logicalAddresses
+
+    val content = mutableListOf<List<String>>()
+
+    for (la in logicalAddresses) {
+        content.add(listOf<String>(la.id.toString(), la.logicalAddress, la.description))
+    }
+    return ViewData(listOf("Id", "Logisk adress", "Beskrivning"), content)
+}
+
+suspend fun mkContractViewData(cpId: Int): ViewData {
+    val takInfo = obtainTakInfo(cpId)
+
+    val contracts = takInfo.contracts
+
+    val content = mutableListOf<List<String>>()
+
+    for (contract in contracts) {
+        content.add(listOf<String>(contract.id.toString(), contract.namespace, contract.major.toString()))
+    }
+    return ViewData(listOf("Id", "Tjänstekontraktets namnrymd", "Major"), content)
+}

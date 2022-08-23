@@ -57,10 +57,10 @@ class ApplicationTest {
     @Test
     fun testTakInfo2() = runBlocking {
         val takInfo5 = obtainTakInfo(5)
-        println(takInfo5.logicalAddress.size)
+        println(takInfo5.logicalAddresses.size)
 
         assertTrue(
-            takInfo5.logicalAddress.size > 4000 && takInfo5.logicalAddress.size < 4500,
+            takInfo5.logicalAddresses.size > 4000 && takInfo5.logicalAddresses.size < 4500,
             "Wrong number of logical addresses"
         )
     }
