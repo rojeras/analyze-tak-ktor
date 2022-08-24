@@ -2,6 +2,7 @@ package com.example.view
 
 import com.example.models.*
 import com.example.plugins.TakViewResurces
+import io.ktor.server.freemarker.*
 import kotlin.system.exitProcess
 
 data class ViewData(
@@ -39,6 +40,50 @@ suspend fun mkLogicalAddressViewData(cpId: Int): ViewData {
     return ViewData(listOf("Id", "Logisk adress", "Beskrivning"), content)
 }
 
+suspend fun mkContractView(id: Int, contractResource: TakViewResurces = TakViewResurces.CONTRACTS): FreeMarkerContent {
+    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
+
+    // val contractViewData = mkContractViewData(id, contractResource)
+    val takInfo = obtainTakInfo(id)
+
+    // val contracts = takInfo.contracts
+    val contracts: List<Contract>
+    val heading: String
+
+    when (contractResource) {
+        TakViewResurces.CONTRACTS -> {
+            contracts = takInfo.contracts
+            heading = "Tjänstekontrakt i $plattformName"
+        }
+
+        TakViewResurces.TKNOTPARTOFAUTHORIZATION -> {
+            contracts = takInfo.tkNotPartOfAuthorization
+            heading = "Tjänstekontrakt som inte ingår i någon anropsbehörighet i $plattformName"
+        }
+
+        else -> {
+            println("ERROR: mkContractViewData() called with unknown contractResource: $contractResource")
+            exitProcess(1)
+        }
+    }
+
+    val content = mutableListOf<List<String>>()
+
+    for (contract in contracts) {
+        content.add(listOf<String>(contract.id.toString(), contract.namespace, contract.major.toString()))
+    }
+    val contractViewData = ViewData(listOf("Id", "Tjänstekontraktets namnrymd", "Major"), content)
+
+    return io.ktor.server.freemarker.FreeMarkerContent(
+        "tableview.ftl",
+        kotlin.collections.mapOf(
+            "heading" to heading,
+            "tableHeadings" to contractViewData.headings,
+            "viewData" to contractViewData.content
+        )
+    )
+}
+/*
 suspend fun mkContractViewData(cpId: Int, contractResource: TakViewResurces): ViewData {
     val takInfo = obtainTakInfo(cpId)
 
@@ -59,6 +104,7 @@ suspend fun mkContractViewData(cpId: Int, contractResource: TakViewResurces): Vi
     }
     return ViewData(listOf("Id", "Tjänstekontraktets namnrymd", "Major"), content)
 }
+ */
 
 suspend fun mkAuthorizationViewData(cpId: Int): ViewData {
     val takInfo = obtainTakInfo(cpId)
