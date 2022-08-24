@@ -31,6 +31,7 @@ class ApplicationTest {
         application {
             configureRouting()
         }
+        ConnectionPoint.load()
         client.get("/tak/5/routings").apply {
             assertEquals(HttpStatusCode.OK, status)
             assertContains(bodyAsText(), "Vägval i SLL-PROD", false, "Routing page does not display as expected!")

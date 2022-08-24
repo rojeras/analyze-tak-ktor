@@ -8,6 +8,9 @@
 # Todo
 
 * Låt tak/X göra redirect till tak/X/Summary
+* Lägg in exception handling
+* Red ut cooroutines och varför *plattforms* ibland inte laddas i tid.
+* Addera loggning.
 * Formatera alla sidor snyggare
 * Se till att hela tiden lägga på testfall!
 * Tag bort alla referenser till "article" - både routes och mallar

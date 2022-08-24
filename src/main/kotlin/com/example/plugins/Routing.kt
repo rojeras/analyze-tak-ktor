@@ -10,6 +10,15 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 
+enum class TakViewResurces(name: String) {
+    CONTRACTS("contracts"),
+    CONSUMERS("consumers"),
+    PRODUCERS("producers"),
+    LOGICAL_ADDRESS("logicaladdress"),
+    TKNOTPARTOFAUTHORIZATION("tkNotPartOfAuthorization"),
+    TKNOTPARTOFROUTING("tkNotPartOfRouting")
+}
+
 fun Application.configureRouting() {
     routing {
         static("/static") {
@@ -58,6 +67,11 @@ fun Application.configureRouting() {
             get("{tpId}/routings") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
                 call.respond(mkRoutingView(id))
+            }
+
+            get("{tpId}/tknotpartofauthorization") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(mkContractView(id, TakViewResurces.TKNOTPARTOFAUTHORIZATION))
             }
 
             get("") {
@@ -142,7 +156,8 @@ suspend fun mkSummaryView(id: Int): FreeMarkerContent {
             "numOfLogicalAddresses" to takInfo.logicalAddresses.size,
             "numOfAuthorizations" to takInfo.authorizations.size,
             "numOfRoutings" to takInfo.routings.size,
-            "numOftkNotPartOfAuthorization" to takInfo.tkNotPartOfAuthorization.size
+            "numOftkNotPartOfAuthorization" to takInfo.tkNotPartOfAuthorization.size,
+            "numOftkNotPartOfRouting" to takInfo.tkNotPartOfRouting.size,
         )
     )
 }
@@ -184,12 +199,12 @@ suspend fun mkLogicalAddressView(id: Int): FreeMarkerContent {
     )
 }
 
-suspend fun mkContractView(id: Int): FreeMarkerContent {
+suspend fun mkContractView(id: Int, contractResource: TakViewResurces = TakViewResurces.CONTRACTS): FreeMarkerContent {
     val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
 
     val heading = "Tjänstekontrakt i $plattformName"
 
-    val contractViewData = mkContractViewData(id)
+    val contractViewData = mkContractViewData(id, contractResource)
 
     return io.ktor.server.freemarker.FreeMarkerContent(
         "tableview.ftl",

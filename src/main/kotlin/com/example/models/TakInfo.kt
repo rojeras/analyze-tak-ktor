@@ -19,6 +19,7 @@ data class TakInfo(
 
     // Define the lists for test results for this TAK
     var tkNotPartOfAuthorization: List<Contract> = listOf()
+    var tkNotPartOfRouting: List<Contract> = listOf()
 
     suspend fun load() {
         // Contracts are created based on a subset of the information from InstalledContracts.
@@ -72,8 +73,12 @@ data class TakInfo(
         println("TakInfo loading of tak #${this.cpId} complete")
 
         // Time to perform the TAK checks
-        val usedTk = this.authorizations.map { it.serviceContractId }.toSet()
-        tkNotPartOfAuthorization = this.contracts.filterNot { usedTk.contains(it.id) }
+        val usedTkInAuth = this.authorizations.map { it.serviceContractId }.toSet()
+        tkNotPartOfAuthorization = this.contracts.filterNot { usedTkInAuth.contains(it.id) }
+
+        val usedTkInRouting = this.routings.map { it.serviceContractId }.toSet()
+        tkNotPartOfRouting = this.contracts.filterNot { usedTkInRouting.contains(it.id) }
+
 
         println("TakChecks created för tak #${this.cpId}")
     }

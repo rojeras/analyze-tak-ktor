@@ -1,10 +1,12 @@
 package com.example.view
 
 import com.example.models.*
+import com.example.plugins.TakViewResurces
+import kotlin.system.exitProcess
 
 data class ViewData(
     val headings: List<String>,
-    val content: List<List<String>>
+    val content: List<List<String>>,
 )
 
 // fun mkComponentViewData(components: List<ServiceComponent>): ViewData {
@@ -37,10 +39,18 @@ suspend fun mkLogicalAddressViewData(cpId: Int): ViewData {
     return ViewData(listOf("Id", "Logisk adress", "Beskrivning"), content)
 }
 
-suspend fun mkContractViewData(cpId: Int): ViewData {
+suspend fun mkContractViewData(cpId: Int, contractResource: TakViewResurces): ViewData {
     val takInfo = obtainTakInfo(cpId)
 
-    val contracts = takInfo.contracts
+    // val contracts = takInfo.contracts
+    val contracts = when (contractResource) {
+        TakViewResurces.CONTRACTS -> takInfo.contracts
+        TakViewResurces.TKNOTPARTOFAUTHORIZATION -> takInfo.tkNotPartOfAuthorization
+        else -> {
+            println("ERROR: mkContractViewData() called with unknown contractResource: $contractResource")
+            exitProcess(1)
+        }
+    }
 
     val content = mutableListOf<List<String>>()
 
