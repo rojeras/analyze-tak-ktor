@@ -9,18 +9,16 @@ package com.example.models
 data class TakInfo(
     val cpId: Int
 ) {
+    // Define lists for the TAK information
     val contracts = mutableListOf<Contract>()
     var logicalAddresses: List<LogicalAddress> = listOf()
-
-    // var serviceConsumers: List<ServiceConsumer> = listOf()
     var serviceConsumers: List<ServiceComponent> = listOf<ServiceComponent>()
-
-    // var serviceProducers: List<ServiceProducer> = listOf()
     var serviceProducers: List<ServiceComponent> = listOf()
-
     val authorizations = mutableListOf<Authorization>()
-
     val routings = mutableListOf<Routing>()
+
+    // Define the lists for test results for this TAK
+    var tkNotPartOfAuthorization: List<Contract> = listOf()
 
     suspend fun load() {
         // Contracts are created based on a subset of the information from InstalledContracts.
@@ -58,8 +56,6 @@ data class TakInfo(
             )
         }
 
-        println("Klar")
-
         val productions = ServiceProduction.load(cpId)
         for (production in productions) {
             this.routings.add(
@@ -73,7 +69,13 @@ data class TakInfo(
             )
         }
 
-        println("Klar")
+        println("TakInfo loading of tak #${this.cpId} complete")
+
+        // Time to perform the TAK checks
+        val usedTk = this.authorizations.map { it.serviceContractId }.toSet()
+        tkNotPartOfAuthorization = this.contracts.filterNot { usedTk.contains(it.id) }
+
+        println("TakChecks created för tak #${this.cpId}")
     }
 
     companion object {

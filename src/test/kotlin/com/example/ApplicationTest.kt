@@ -4,13 +4,13 @@ import com.example.models.ConnectionPoint
 import com.example.models.InstalledContract
 import com.example.models.obtainTakInfo
 import com.example.plugins.configureRouting
-import com.example.view.mkConsumerViewData
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -23,6 +23,17 @@ class ApplicationTest {
         client.get("/hello").apply {
             assertEquals(HttpStatusCode.OK, status)
             assertEquals("Hello World!", bodyAsText(), "Server does not work correctly!")
+        }
+    }
+
+    @Test
+    fun testRoutingView1() = testApplication {
+        application {
+            configureRouting()
+        }
+        client.get("/tak/5/routings").apply {
+            assertEquals(HttpStatusCode.OK, status)
+            assertContains(bodyAsText(), "Vägval i SLL-PROD", false, "Routing page does not display as expected!")
         }
     }
 
@@ -87,12 +98,17 @@ class ApplicationTest {
         )
     }
 
-    fun testViewData1() = runBlocking {
-        val takInfo5 = obtainTakInfo(5)
-        val noOfConsumers = takInfo5.serviceProducers.size
+    @Test
+    fun testCheck1() = runBlocking {
+        val takInfo = obtainTakInfo(5)
 
-        val mCVD = mkConsumerViewData(5)
+        val num = takInfo.tkNotPartOfAuthorization.size
 
-        assertEquals(noOfConsumers, mCVD.content.size, "Wrong number of lines in consumer view data")
+        println("TK not used: $num")
+
+        assertTrue(
+            num > 50,
+            "Wrong number of contracts not part of auths"
+        )
     }
 }

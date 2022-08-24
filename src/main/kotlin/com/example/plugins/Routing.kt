@@ -141,7 +141,8 @@ suspend fun mkSummaryView(id: Int): FreeMarkerContent {
             "numOfContracts" to takInfo.contracts.size,
             "numOfLogicalAddresses" to takInfo.logicalAddresses.size,
             "numOfAuthorizations" to takInfo.authorizations.size,
-            "numOfRoutings" to takInfo.routings.size
+            "numOfRoutings" to takInfo.routings.size,
+            "numOftkNotPartOfAuthorization" to takInfo.tkNotPartOfAuthorization.size
         )
     )
 }
