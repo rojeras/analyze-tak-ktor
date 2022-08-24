@@ -10,7 +10,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 
-enum class TakViewResurces(name: String) {
+enum class TakViewResource(name: String) {
     CONTRACTS("contracts"),
     CONSUMERS("consumers"),
     PRODUCERS("producers"),
@@ -41,12 +41,12 @@ fun Application.configureRouting() {
 
             get("{tpId}/consumers") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(mkComponentView(ComponentType.CONSUMER, id))
+                call.respond(showComponentView(id, TakViewResource.CONSUMERS))
             }
 
             get("{tpId}/producers") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(mkComponentView(ComponentType.PRODUCER, id))
+                call.respond(showComponentView(id, TakViewResource.PRODUCERS))
             }
 
             get("{tpId}/logicaladdress") {
@@ -71,7 +71,7 @@ fun Application.configureRouting() {
 
             get("{tpId}/tknotpartofauthorization") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(mkContractView(id, TakViewResurces.TKNOTPARTOFAUTHORIZATION))
+                call.respond(mkContractView(id, TakViewResource.TKNOTPARTOFAUTHORIZATION))
             }
 
             get("") {
@@ -162,25 +162,7 @@ suspend fun mkSummaryView(id: Int): FreeMarkerContent {
     )
 }
 
-suspend fun mkComponentView(componentType: ComponentType, id: Int): FreeMarkerContent {
-    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
 
-    val heading = when (componentType) {
-        ComponentType.CONSUMER -> "Tjänstekonsumenter i $plattformName"
-        ComponentType.PRODUCER -> "Tjänsteproducenter i $plattformName"
-    }
-
-    val componentViewData = mkComponentViewData(id, componentType)
-
-    return io.ktor.server.freemarker.FreeMarkerContent(
-        "tableview.ftl",
-        kotlin.collections.mapOf(
-            "heading" to heading,
-            "tableHeadings" to componentViewData.headings,
-            "viewData" to componentViewData.content
-        )
-    )
-}
 
 suspend fun mkLogicalAddressView(id: Int): FreeMarkerContent {
     val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
@@ -199,22 +181,6 @@ suspend fun mkLogicalAddressView(id: Int): FreeMarkerContent {
     )
 }
 
-suspend fun mkContractView(id: Int, contractResource: TakViewResurces = TakViewResurces.CONTRACTS): FreeMarkerContent {
-    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
-
-    val heading = "Tjänstekontrakt i $plattformName"
-
-    val contractViewData = mkContractViewData(id, contractResource)
-
-    return io.ktor.server.freemarker.FreeMarkerContent(
-        "tableview.ftl",
-        kotlin.collections.mapOf(
-            "heading" to heading,
-            "tableHeadings" to contractViewData.headings,
-            "viewData" to contractViewData.content
-        )
-    )
-}
 
 suspend fun mkAuthorizationView(id: Int): FreeMarkerContent {
     val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()

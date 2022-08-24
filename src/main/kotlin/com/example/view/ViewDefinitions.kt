@@ -1,7 +1,7 @@
 package com.example.view
 
 import com.example.models.*
-import com.example.plugins.TakViewResurces
+import com.example.plugins.TakViewResource
 import io.ktor.server.freemarker.*
 import kotlin.system.exitProcess
 
@@ -9,6 +9,49 @@ data class ViewData(
     val headings: List<String>,
     val content: List<List<String>>,
 )
+
+suspend fun showComponentView(cpId: Int, resource: TakViewResource): FreeMarkerContent {
+
+    val takInfo = obtainTakInfo(cpId)
+    // val plattformName = ConnectionPoint.getPlattform(cpId)!!.getPlattformName()
+    val plattformName = takInfo.getPlattformName()
+
+    val components: List<ServiceComponent>
+    val heading: String
+
+    when (resource) {
+        TakViewResource.CONSUMERS -> {
+            components = takInfo.serviceConsumers
+            heading = "Tjänstekonsumenter i $plattformName"
+        }
+
+        TakViewResource.PRODUCERS -> {
+            components = takInfo.serviceProducers
+            heading = "Tjänsteproducenter i $plattformName"
+        }
+
+        else -> {
+            println("ERROR: mkContractViewData() called with unknown contractResource: $resource")
+            exitProcess(1)
+        }
+    }
+    val content = mutableListOf<List<String>>()
+
+    for (component in components) {
+        content.add(listOf<String>(component.id.toString(), component.hsaId, component.description))
+    }
+    val componentViewData = ViewData(listOf("Id", "HsaId", "Beskrivning"), content)
+    // val componentViewData = mkComponentViewData(id, componentType)
+
+    return io.ktor.server.freemarker.FreeMarkerContent(
+        "tableview.ftl",
+        kotlin.collections.mapOf(
+            "heading" to heading,
+            "tableHeadings" to componentViewData.headings,
+            "viewData" to componentViewData.content
+        )
+    )
+}
 
 // fun mkComponentViewData(components: List<ServiceComponent>): ViewData {
 suspend fun mkComponentViewData(cpId: Int, componentType: ComponentType): ViewData {
@@ -40,7 +83,7 @@ suspend fun mkLogicalAddressViewData(cpId: Int): ViewData {
     return ViewData(listOf("Id", "Logisk adress", "Beskrivning"), content)
 }
 
-suspend fun mkContractView(id: Int, contractResource: TakViewResurces = TakViewResurces.CONTRACTS): FreeMarkerContent {
+suspend fun mkContractView(id: Int, contractResource: TakViewResource = TakViewResource.CONTRACTS): FreeMarkerContent {
     val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
 
     // val contractViewData = mkContractViewData(id, contractResource)
@@ -51,12 +94,12 @@ suspend fun mkContractView(id: Int, contractResource: TakViewResurces = TakViewR
     val heading: String
 
     when (contractResource) {
-        TakViewResurces.CONTRACTS -> {
+        TakViewResource.CONTRACTS -> {
             contracts = takInfo.contracts
             heading = "Tjänstekontrakt i $plattformName"
         }
 
-        TakViewResurces.TKNOTPARTOFAUTHORIZATION -> {
+        TakViewResource.TKNOTPARTOFAUTHORIZATION -> {
             contracts = takInfo.tkNotPartOfAuthorization
             heading = "Tjänstekontrakt som inte ingår i någon anropsbehörighet i $plattformName"
         }
@@ -83,28 +126,6 @@ suspend fun mkContractView(id: Int, contractResource: TakViewResurces = TakViewR
         )
     )
 }
-/*
-suspend fun mkContractViewData(cpId: Int, contractResource: TakViewResurces): ViewData {
-    val takInfo = obtainTakInfo(cpId)
-
-    // val contracts = takInfo.contracts
-    val contracts = when (contractResource) {
-        TakViewResurces.CONTRACTS -> takInfo.contracts
-        TakViewResurces.TKNOTPARTOFAUTHORIZATION -> takInfo.tkNotPartOfAuthorization
-        else -> {
-            println("ERROR: mkContractViewData() called with unknown contractResource: $contractResource")
-            exitProcess(1)
-        }
-    }
-
-    val content = mutableListOf<List<String>>()
-
-    for (contract in contracts) {
-        content.add(listOf<String>(contract.id.toString(), contract.namespace, contract.major.toString()))
-    }
-    return ViewData(listOf("Id", "Tjänstekontraktets namnrymd", "Major"), content)
-}
- */
 
 suspend fun mkAuthorizationViewData(cpId: Int): ViewData {
     val takInfo = obtainTakInfo(cpId)

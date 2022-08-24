@@ -21,6 +21,8 @@ data class TakInfo(
     var tkNotPartOfAuthorization: List<Contract> = listOf()
     var tkNotPartOfRouting: List<Contract> = listOf()
 
+    fun getPlattformName() = ConnectionPoint.getPlattform(cpId)!!.getPlattformName()
+
     suspend fun load() {
         // Contracts are created based on a subset of the information from InstalledContracts.
         val installedContracts = InstalledContract.load(cpId)
