@@ -150,10 +150,13 @@ data class LogicalAddress(
     val id: Int,
     val logicalAddress: String,
     val description: String
-) {
+) : TakData {
     init {
         mapped[id] = this
     }
+
+    override fun tableRowList(): List<String> =
+        listOf<String>(this.id.toString(), this.logicalAddress, this.description)
 
     companion object {
 
@@ -168,6 +171,8 @@ data class LogicalAddress(
 
             return response.body()
         }
+
+        fun columnHeadingList(): List<String> = listOf("Id", "Logisk adress", "Beskrivning")
     }
 }
 
@@ -186,11 +191,13 @@ enum class ComponentType(val label: String) {
 data class ServiceComponent(
     val id: Int,
     val hsaId: String,
-    val description: String
-) {
+    val description: String = "-"
+) : TakData {
     init {
         mapped[id] = this
     }
+
+    override fun tableRowList(): List<String> = listOf<String>(this.id.toString(), this.hsaId, this.description)
 
     companion object {
 
@@ -212,6 +219,8 @@ data class ServiceComponent(
 
             return response.body()
         }
+
+        fun columnHeadingList(): List<String> = listOf("Id", "HsaId", "Beskrivning")
     }
 }
 
@@ -256,21 +265,6 @@ data class Cooperation(
  * @property serviceContractId
  * @constructor Create empty Authorization
  */
-@Serializable
-data class Authorization(
-    val id: Int,
-    val serviceComponentId: Int,
-    val logicalAddressId: Int,
-    val serviceContractId: Int
-) {
-    init {
-        mapped[id] = this
-    }
-
-    companion object {
-        val mapped = mutableMapOf<Int, Authorization>()
-    }
-}
 
 @Serializable
 data class ServiceProduction(
@@ -291,22 +285,5 @@ data class ServiceProduction(
 
             return response.body()
         }
-    }
-}
-
-@Serializable
-data class Routing(
-    val id: Int,
-    val serviceComponentId: Int,
-    val logicalAddressId: Int,
-    val serviceContractId: Int,
-    val rivtaProfile: String
-) {
-    init {
-        mapped[id] = this
-    }
-
-    companion object {
-        val mapped = mutableMapOf<Int, Routing>()
     }
 }

@@ -1,5 +1,18 @@
 package com.example.models
 
+import com.example.controller.laNotPartOfRouting
+import com.example.controller.tkNotPartOfAuthorization
+import com.example.controller.tkNotPartOfRouting
+import kotlinx.serialization.Serializable
+
+interface TakData {
+    fun tableRowList(): List<String>
+
+    companion object {
+        fun columnHeadingList(): List<String> = listOf()
+    }
+}
+
 /**
  * Tak info. Store tak information for a certain TAK.
  *
@@ -20,6 +33,7 @@ data class TakInfo(
     // Define the lists for test results for this TAK
     var tkNotPartOfAuthorization: List<Contract> = listOf()
     var tkNotPartOfRouting: List<Contract> = listOf()
+    var laNotPartOfRouting: List<LogicalAddress> = listOf()
 
     fun getPlattformName() = ConnectionPoint.getPlattform(cpId)!!.getPlattformName()
 
@@ -29,6 +43,7 @@ data class TakInfo(
         for (ic in installedContracts) {
             contracts.add(
                 Contract(
+                    this,
                     ic.serviceContract.id,
                     ic.serviceContract.namespace,
                     ic.serviceContract.major
@@ -75,12 +90,11 @@ data class TakInfo(
         println("TakInfo loading of tak #${this.cpId} complete")
 
         // Time to perform the TAK checks
-        val usedTkInAuth = this.authorizations.map { it.serviceContractId }.toSet()
-        tkNotPartOfAuthorization = this.contracts.filterNot { usedTkInAuth.contains(it.id) }
+        tkNotPartOfAuthorization = tkNotPartOfAuthorization(this.authorizations, this.contracts)
 
-        val usedTkInRouting = this.routings.map { it.serviceContractId }.toSet()
-        tkNotPartOfRouting = this.contracts.filterNot { usedTkInRouting.contains(it.id) }
+        tkNotPartOfRouting = tkNotPartOfRouting(this.routings, this.contracts)
 
+        laNotPartOfRouting = laNotPartOfRouting(this.routings, this.logicalAddresses)
 
         println("TakChecks created för tak #${this.cpId}")
     }
@@ -111,7 +125,67 @@ suspend fun obtainTakInfo(cpId: Int): TakInfo {
  * @constructor Create empty Contract
  */
 data class Contract(
+    val takInfo: TakInfo,
     val id: Int,
     val namespace: String,
     val major: Int
-)
+) : TakData {
+
+    override fun tableRowList(): List<String> =
+        listOf<String>(this.id.toString(), this.namespace, this.major.toString())
+
+    companion object {
+        fun columnHeadingList(): List<String> = listOf("Id", "Tjänstekontraktets namnrymd", "Major")
+    }
+}
+
+@Serializable
+data class Authorization(
+    val id: Int,
+    val serviceComponentId: Int,
+    val logicalAddressId: Int,
+    val serviceContractId: Int
+) : TakData {
+    init {
+        mapped[id] = this
+    }
+
+    override fun tableRowList(): List<String> = listOf<String>(
+        this.id.toString(),
+        ServiceComponent.mapped[this.serviceComponentId]!!.description,
+        ServiceContract.mapped[this.serviceContractId]!!.namespace,
+        LogicalAddress.mapped[this.logicalAddressId]!!.description
+    )
+
+    companion object {
+        val mapped = mutableMapOf<Int, Authorization>()
+
+        fun columnHeadingList(): List<String> = listOf("Id", "Konsument", "Kontrakt", "Logisk adress")
+    }
+}
+
+@Serializable
+data class Routing(
+    val id: Int,
+    val serviceComponentId: Int,
+    val logicalAddressId: Int,
+    val serviceContractId: Int,
+    val rivtaProfile: String
+) : TakData {
+    init {
+        mapped[id] = this
+    }
+
+    override fun tableRowList(): List<String> = listOf<String>(
+        this.id.toString(),
+        ServiceComponent.mapped[this.serviceComponentId]!!.description,
+        ServiceContract.mapped[this.serviceContractId]!!.namespace,
+        LogicalAddress.mapped[this.logicalAddressId]!!.logicalAddress
+    )
+
+    companion object {
+        val mapped = mutableMapOf<Int, Routing>()
+
+        fun columnHeadingList(): List<String> = listOf("Id", "Producent", "Kontrakt", "Logisk adress")
+    }
+}

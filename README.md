@@ -41,3 +41,6 @@
     * En knapp möjliggör generering av JSON för markerade fel
 * Länkar
     * Ev lägger vi på länkar från vissa objekt till hippo och/eller TkView
+
+# Övrigt
+* Länk till SKLTP källkod: https://github.com/skltp 

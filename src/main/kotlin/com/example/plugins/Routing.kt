@@ -10,13 +10,16 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 
-enum class TakViewResource(name: String) {
+enum class UrlPathResource(name: String) {
     CONTRACTS("contracts"),
     CONSUMERS("consumers"),
     PRODUCERS("producers"),
     LOGICAL_ADDRESS("logicaladdress"),
+    AUTHORIZATION("authorizations"),
+    ROUTING("routings"),
     TKNOTPARTOFAUTHORIZATION("tkNotPartOfAuthorization"),
-    TKNOTPARTOFROUTING("tkNotPartOfRouting")
+    TKNOTPARTOFROUTING("tkNotPartOfRouting"),
+    LANOTPARTOFROUTING("laNotPartOfRouting")
 }
 
 fun Application.configureRouting() {
@@ -36,42 +39,58 @@ fun Application.configureRouting() {
         route("tak") {
             get("{tpId}") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(mkSummaryView(id))
+                call.respond(showSummaryView(id))
             }
 
             get("{tpId}/consumers") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(showComponentView(id, TakViewResource.CONSUMERS))
+                // call.respond(showComponentView(id, UrlPathResource.CONSUMERS))
+                call.respond(showDataView(id, UrlPathResource.CONSUMERS))
             }
 
             get("{tpId}/producers") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(showComponentView(id, TakViewResource.PRODUCERS))
+                call.respond(showDataView(id, UrlPathResource.PRODUCERS))
+                // call.respond(showComponentView(id, UrlPathResource.PRODUCERS))
             }
 
             get("{tpId}/logicaladdress") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(mkLogicalAddressView(id))
+                call.respond(showDataView(id, UrlPathResource.LOGICAL_ADDRESS))
+                // call.respond(mkLogicalAddressView(id))
             }
 
             get("{tpId}/contracts") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(mkContractView(id))
+                call.respond(showDataView(id, UrlPathResource.CONTRACTS))
+                // call.respond(mkContractView(id))
             }
 
             get("{tpId}/authorizations") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(mkAuthorizationView(id))
+                call.respond(showDataView(id, UrlPathResource.AUTHORIZATION))
+                // call.respond(mkAuthorizationView(id))
             }
 
             get("{tpId}/routings") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(mkRoutingView(id))
+                call.respond(showDataView(id, UrlPathResource.ROUTING))
+                // call.respond(mkRoutingView(id))
             }
 
             get("{tpId}/tknotpartofauthorization") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(mkContractView(id, TakViewResource.TKNOTPARTOFAUTHORIZATION))
+                call.respond(showDataView(id, UrlPathResource.TKNOTPARTOFAUTHORIZATION))
+            }
+
+            get("{tpId}/tknotpartofrouting") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(showDataView(id, UrlPathResource.TKNOTPARTOFROUTING))
+            }
+
+            get("{tpId}/lanotpartofrouting") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(showDataView(id, UrlPathResource.LANOTPARTOFROUTING))
             }
 
             get("") {
@@ -87,131 +106,5 @@ fun Application.configureRouting() {
                 )
             }
         }
-
-        // The articles should be removed
-        route("articles") {
-            get {
-                // Show a list of articles
-                println("In articles")
-                call.respond(FreeMarkerContent("index.ftl", mapOf("articles" to articles)))
-            }
-            get("new") {
-                // Show a page with fields for creating a new article
-                call.respond(FreeMarkerContent("new.ftl", model = null))
-            }
-            post {
-                // Save an article
-                val formParameters = call.receiveParameters()
-                val title = formParameters.getOrFail("title")
-                val body = formParameters.getOrFail("body")
-                val newEntry = Article.newEntry(title, body)
-                articles.add(newEntry)
-                call.respondRedirect("/articles/${newEntry.id}")
-            }
-            get("{id}") {
-                // Show an article with a specific id
-                val id = call.parameters.getOrFail<Int>("id").toInt()
-                call.respond(FreeMarkerContent("show.ftl", mapOf("article" to articles.find { it.id == id })))
-            }
-            get("{id}/edit") {
-                // Show a page with fields for editing an article
-                val id = call.parameters.getOrFail<Int>("id").toInt()
-                call.respond(FreeMarkerContent("edit.ftl", mapOf("article" to articles.find { it.id == id })))
-            }
-            post("{id}") {
-                // Update or delete an article
-                val id = call.parameters.getOrFail<Int>("id").toInt()
-                val formParameters = call.receiveParameters()
-                when (formParameters.getOrFail("_action")) {
-                    "update" -> {
-                        val index = articles.indexOf(articles.find { it.id == id })
-                        val title = formParameters.getOrFail("title")
-                        val body = formParameters.getOrFail("body")
-                        articles[index].title = title
-                        articles[index].body = body
-                        call.respondRedirect("/articles/$id")
-                    }
-
-                    "delete" -> {
-                        articles.removeIf { it.id == id }
-                        call.respondRedirect("/articles")
-                    }
-                }
-            }
-        }
     }
-}
-
-suspend fun mkSummaryView(id: Int): FreeMarkerContent {
-    val takInfo = obtainTakInfo(id)
-    return FreeMarkerContent(
-        "summary.ftl",
-        mapOf(
-            "cpId" to id,
-            "plattform" to ConnectionPoint.getPlattform(id),
-            "plattforms" to com.example.models.ConnectionPoint.plattforms,
-            "numOfConsumers" to takInfo.serviceConsumers.size,
-            "numOfProducers" to takInfo.serviceProducers.size,
-            "numOfContracts" to takInfo.contracts.size,
-            "numOfLogicalAddresses" to takInfo.logicalAddresses.size,
-            "numOfAuthorizations" to takInfo.authorizations.size,
-            "numOfRoutings" to takInfo.routings.size,
-            "numOftkNotPartOfAuthorization" to takInfo.tkNotPartOfAuthorization.size,
-            "numOftkNotPartOfRouting" to takInfo.tkNotPartOfRouting.size,
-        )
-    )
-}
-
-
-
-suspend fun mkLogicalAddressView(id: Int): FreeMarkerContent {
-    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
-
-    val heading = "Logiska adresser i $plattformName"
-
-    val laViewData = mkLogicalAddressViewData(id)
-
-    return io.ktor.server.freemarker.FreeMarkerContent(
-        "tableview.ftl",
-        kotlin.collections.mapOf(
-            "heading" to heading,
-            "tableHeadings" to laViewData.headings,
-            "viewData" to laViewData.content
-        )
-    )
-}
-
-
-suspend fun mkAuthorizationView(id: Int): FreeMarkerContent {
-    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
-
-    val heading = "Anropsbehörigheter i $plattformName"
-
-    val authViewData = mkAuthorizationViewData(id)
-
-    return io.ktor.server.freemarker.FreeMarkerContent(
-        "tableview.ftl",
-        kotlin.collections.mapOf(
-            "heading" to heading,
-            "tableHeadings" to authViewData.headings,
-            "viewData" to authViewData.content
-        )
-    )
-}
-
-suspend fun mkRoutingView(id: Int): FreeMarkerContent {
-    val plattformName = ConnectionPoint.getPlattform(id)!!.getPlattformName()
-
-    val heading = "Vägval i $plattformName"
-
-    val routingViewData = mkRoutingViewData(id)
-
-    return io.ktor.server.freemarker.FreeMarkerContent(
-        "tableview.ftl",
-        kotlin.collections.mapOf(
-            "heading" to heading,
-            "tableHeadings" to routingViewData.headings,
-            "viewData" to routingViewData.content
-        )
-    )
 }
