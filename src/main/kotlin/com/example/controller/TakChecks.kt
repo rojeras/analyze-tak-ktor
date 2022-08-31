@@ -21,24 +21,12 @@ fun laNotPartOfRouting(routings: List<Routing>, logicalAddresses: List<LogicalAd
 }
 
 // Will probably not work with the TAK-api as source
-// fun componentsNotUsed(authorizations: List<Authorization>, routings: List<Routing>):
 
+// Version which checks if an auth is not part of any integration
 fun authorizationWithoutAMatchingRouting(
     authorizations: List<Authorization>,
-    routings: List<Routing>
+    integrations: List<Integration>
 ): List<Authorization> {
-    val lonelyAuthorizations = mutableListOf<Authorization>()
-
-    for (auth in authorizations) {
-        var found = false
-        for (rout in routings) {
-            if (rout.matchAuthorization(auth)) {
-                found = true
-                break
-            }
-        }
-        if (!found) lonelyAuthorizations.add(auth)
-    }
-
-    return lonelyAuthorizations
+    val usedAuthsInIntegrations = integrations.map { it.authorization.id }.toSet()
+    return authorizations.filterNot { usedAuthsInIntegrations.contains(it.id) }
 }

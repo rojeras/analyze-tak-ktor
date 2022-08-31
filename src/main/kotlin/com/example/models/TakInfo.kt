@@ -1,9 +1,6 @@
 package com.example.models
 
-import com.example.controller.authorizationWithoutAMatchingRouting
-import com.example.controller.laNotPartOfRouting
-import com.example.controller.tkNotPartOfAuthorization
-import com.example.controller.tkNotPartOfRouting
+import com.example.controller.*
 import kotlinx.serialization.Serializable
 import java.util.NoSuchElementException
 
@@ -31,6 +28,7 @@ data class TakInfo(
     var serviceProducers: List<ServiceComponent> = listOf()
     val authorizations = mutableListOf<Authorization>()
     val routings = mutableListOf<Routing>()
+    val integrations = mutableListOf<Integration>()
 
     // Define the lists for test results for this TAK
     var tkNotPartOfAuthorization: List<ServiceContract> = listOf()
@@ -83,7 +81,15 @@ data class TakInfo(
         }
 
         // Create the list of integrations by combining authorizations and routings
+        for (auth in authorizations) {
+            for (rout in routings) {
+                if (rout.matchAuthorization(auth)) {
+                    integrations.add(Integration(auth, rout))
+                }
+            }
+        }
 
+        println("Number of integrations: ${integrations.size}")
         println("TakInfo loading of tak #${this.cpId} complete")
 
         // Time to perform the TAK checks
@@ -93,9 +99,10 @@ data class TakInfo(
 
         laNotPartOfRouting = laNotPartOfRouting(this.routings, this.logicalAddresses)
 
-        authorizationWithoutAMatchingRouting = authorizationWithoutAMatchingRouting(this.authorizations, this.routings)
+        authorizationWithoutAMatchingRouting = authorizationWithoutAMatchingRouting(authorizations, integrations)
 
         println("Number of authorizationWithoutAMatchingRouting = ${authorizationWithoutAMatchingRouting.size}")
+
         println("TakChecks created för tak #${this.cpId}")
     }
 
@@ -202,12 +209,10 @@ data class Routing(
 }
 
 data class Integration(
-    val id: Int,
     val authorization: Authorization,
     val routing: Routing
 ) : TakData {
     override fun tableRowList(): List<String> = listOf<String>(
-        this.id.toString(),
         ServiceComponent.mapped[this.authorization.serviceComponentId]!!.htmlString,
         ServiceContract.mapped[this.authorization.serviceContractId]!!.htmlString,
         ServiceComponent.mapped[this.routing.serviceComponentId]!!.htmlString,
@@ -215,7 +220,7 @@ data class Integration(
     )
 
     companion object {
-        val mapped = mutableMapOf<Int, Integration>()
+        // val mapped = mutableMapOf<Int, Integration>()
 
         fun columnHeadingList(): List<String> =
             listOf("Konsument", "Tjänstekontrakt", "Tjänsteproducent", "Logisk adress")
