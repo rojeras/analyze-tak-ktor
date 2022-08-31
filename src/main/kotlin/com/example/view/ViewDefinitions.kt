@@ -18,8 +18,10 @@ suspend fun showSummaryView(id: Int): FreeMarkerContent {
             "numOfLogicalAddresses" to takInfo.logicalAddresses.size,
             "numOfAuthorizations" to takInfo.authorizations.size,
             "numOfRoutings" to takInfo.routings.size,
-            "numOftkNotPartOfAuthorization" to takInfo.tkNotPartOfAuthorization.size,
-            "numOftkNotPartOfRouting" to takInfo.tkNotPartOfRouting.size
+            "numOfTkNotPartOfAuthorization" to takInfo.tkNotPartOfAuthorization.size,
+            "numOfTkNotPartOfRouting" to takInfo.tkNotPartOfRouting.size,
+            "numOfLaNotPartOfRouting" to takInfo.laNotPartOfRouting.size,
+            "authorizationWithoutAMatchingRouting" to takInfo.authorizationWithoutAMatchingRouting.size
         )
     )
 }
@@ -85,6 +87,12 @@ suspend fun showDataView(cpId: Int, resource: UrlPathResource): FreeMarkerConten
             items = takInfo.laNotPartOfRouting
             heading = "Logiska adresser som inte ingår i något vägval i $plattformName"
             columnHeadings = LogicalAddress.columnHeadingList()
+        }
+
+        UrlPathResource.AUTHORIZATIONWITHOUTAMATCHINGROUTING -> {
+            items = takInfo.authorizationWithoutAMatchingRouting
+            heading = "Anropsbehörigheter som inte ingår i något vägval i $plattformName"
+            columnHeadings = Authorization.columnHeadingList()
         }
     }
     val content = mutableListOf<List<String>>()

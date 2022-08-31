@@ -1,18 +1,13 @@
 package com.example
 
-import com.example.models.ConnectionPoint
-import com.example.models.InstalledContract
-import com.example.models.obtainTakInfo
+import com.example.models.*
 import com.example.plugins.configureRouting
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlinx.coroutines.runBlocking
-import kotlin.test.Test
-import kotlin.test.assertContains
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
+import kotlin.test.*
 
 class ApplicationTest {
     @Test
@@ -60,56 +55,114 @@ class ApplicationTest {
 
     @Test
     fun testTakInfo1() = runBlocking {
-        val takInfo5 = obtainTakInfo(5)
+        val takInfo = obtainTakInfo(7)
 
-        assertTrue(takInfo5.contracts.size > 100 && takInfo5.contracts.size < 120, "Wrong number of contracts")
+        assertTrue(takInfo.contracts.size > 120 && takInfo.contracts.size < 140, "Wrong number of contracts")
         // assertTrue(takInfo5.logicalAddress.size > 4500 && takInfo5.logicalAddress.size < 4600, "Wrong number of logical addresses")
     }
 
     @Test
     fun testTakInfo2() = runBlocking {
-        val takInfo5 = obtainTakInfo(5)
-        println(takInfo5.logicalAddresses.size)
+        val takInfo = obtainTakInfo(7)
+        println(takInfo.logicalAddresses.size)
 
         assertTrue(
-            takInfo5.logicalAddresses.size > 4000 && takInfo5.logicalAddresses.size < 4500,
+            takInfo.logicalAddresses.size > 110 && takInfo.logicalAddresses.size < 130,
             "Wrong number of logical addresses"
         )
     }
 
     @Test
     fun testTakInfo3() = runBlocking {
-        val takInfo5 = obtainTakInfo(5)
-        println(takInfo5.serviceConsumers.size)
+        val takInfo = obtainTakInfo(7)
+        println(takInfo.serviceConsumers.size)
 
         assertTrue(
-            takInfo5.serviceConsumers.size > 30 && takInfo5.serviceConsumers.size < 45,
+            takInfo.serviceConsumers.size > 60 && takInfo.serviceConsumers.size < 80,
             "Wrong number of service consumers"
         )
     }
 
     @Test
     fun testTakInfo4() = runBlocking {
-        val takInfo5 = obtainTakInfo(5)
-        println(takInfo5.serviceProducers.size)
+        val takInfo = obtainTakInfo(7)
+        println(takInfo.serviceProducers.size)
 
         assertTrue(
-            takInfo5.serviceProducers.size > 18 && takInfo5.serviceProducers.size < 30,
+            takInfo.serviceProducers.size > 30 && takInfo.serviceProducers.size < 50,
             "Wrong number of service consumers"
         )
     }
 
     @Test
     fun testCheck1() = runBlocking {
-        val takInfo = obtainTakInfo(5)
+        val takInfo = obtainTakInfo(6)
 
         val num = takInfo.tkNotPartOfAuthorization.size
 
         println("TK not used: $num")
 
         assertTrue(
-            num > 50,
+            num > 40,
             "Wrong number of contracts not part of auths"
+        )
+    }
+
+    @Test
+    fun testIntegrationCheck1() = runBlocking {
+        LogicalAddress.load(6)
+        InstalledContract.load(6)
+
+        val auth1 = Authorization(5, 1, 5, 6)
+        val rout1 = Routing(5, 2, 5, 6, "dummy")
+
+        assertTrue(
+            rout1.matchAuthorization(auth1),
+            "Auth and Route does not match into an integration!"
+        )
+    }
+
+    @Test
+    fun testIntegrationCheck2() = runBlocking {
+        LogicalAddress.load(6)
+        InstalledContract.load(6)
+
+        val asteriskLaIdInTp5 = 18174
+
+        val auth1 = Authorization(5, 1, asteriskLaIdInTp5, 6)
+        val rout1 = Routing(5, 2, 5, 6, "dummy")
+
+        assertTrue(
+            rout1.matchAuthorization(auth1),
+            "Auth and Route does not match into an integration when '*' is used as logical address!"
+        )
+    }
+
+    @Test
+    fun testIntegrationCheck3() = runBlocking {
+        LogicalAddress.load(6)
+        InstalledContract.load(6)
+
+        val auth1 = Authorization(5, 1, 4, 6)
+        val rout1 = Routing(5, 2, 5, 6, "dummy")
+
+        assertFalse(
+            rout1.matchAuthorization(auth1),
+            "Different logical addresses should not match!"
+        )
+    }
+
+    @Test
+    fun testIntegrationCheck4() = runBlocking {
+        LogicalAddress.load(6)
+        InstalledContract.load(6)
+
+        val auth1 = Authorization(5, 1, 5, 5)
+        val rout1 = Routing(5, 2, 5, 6, "dummy")
+
+        assertFalse(
+            rout1.matchAuthorization(auth1),
+            "Different contracts should not match!"
         )
     }
 }

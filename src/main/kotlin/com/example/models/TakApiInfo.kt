@@ -44,6 +44,7 @@ object ApiClient {
     init {
         println("Client is being initialized")
         client = HttpClient(CIO) {
+            install(HttpTimeout) { requestTimeoutMillis = 10000 }
             install(ContentNegotiation) {
                 json(
                     Json {
@@ -84,7 +85,7 @@ data class ConnectionPoint(
             val client = ApiClient.client
 
             val response: HttpResponse = client.get(url)
-            println(response.status)
+            println("Loading ConnectionPoints: ${response.status}")
 
             plattforms = response.body()
 
@@ -112,7 +113,7 @@ data class InstalledContract(
             val client = ApiClient.client
 
             val response: HttpResponse = client.get(url)
-            println(response.status)
+            println("Loading InstalledContracts: ${response.status}")
 
             return response.body()
         }
@@ -132,13 +133,22 @@ data class ServiceContract(
     val namespace: String,
     val major: Int,
     val minor: Int
-) {
+) : TakData {
     init {
         mapped[id] = this
     }
 
+    val htmlString: String
+        get() {
+            return "<i>${this.namespace}</i><br>${this.major}"
+        }
+
+    override fun tableRowList(): List<String> =
+        listOf<String>(this.id.toString(), this.namespace, this.major.toString())
+
     companion object {
         val mapped = mutableMapOf<Int, ServiceContract>()
+        fun columnHeadingList(): List<String> = listOf("Id", "Tjänstekontraktets namnrymd", "Major")
     }
 }
 
@@ -155,6 +165,11 @@ data class LogicalAddress(
         mapped[id] = this
     }
 
+    val htmlString: String
+        get() {
+            return "<i>${this.description}</i><br>${this.logicalAddress}"
+        }
+
     override fun tableRowList(): List<String> =
         listOf<String>(this.id.toString(), this.logicalAddress, this.description)
 
@@ -167,7 +182,7 @@ data class LogicalAddress(
             val client = ApiClient.client
 
             val response: HttpResponse = client.get(url)
-            println(response.status)
+            println("Loading LogicalAddresses: ${response.status}")
 
             return response.body()
         }
@@ -197,6 +212,11 @@ data class ServiceComponent(
         mapped[id] = this
     }
 
+    val htmlString: String
+        get() {
+            return "<i>${this.description}</i><br>${this.hsaId}"
+        }
+
     override fun tableRowList(): List<String> = listOf<String>(this.id.toString(), this.hsaId, this.description)
 
     companion object {
@@ -215,7 +235,7 @@ data class ServiceComponent(
             val url = "$BASE_URL$resource?connectionPointId=$connectionPointId"
 
             val response: HttpResponse = client.get(url)
-            println(response.status)
+            println("Loading ServiceComponents: ${response.status}")
 
             return response.body()
         }
@@ -247,8 +267,12 @@ data class Cooperation(
                 BASE_URL + "cooperations?connectionPointId=$connectionPointId&include=logicalAddress%2CserviceContract%2CserviceConsumer"
             val client = ApiClient.client
 
-            val response: HttpResponse = client.get(url)
-            println(response.status)
+            val response: HttpResponse = client.get(url) {
+                timeout {
+                    requestTimeoutMillis = 30000
+                }
+            }
+            println("Loading Cooperations: ${response.status}")
 
             return response.body()
         }
@@ -274,14 +298,19 @@ data class ServiceProduction(
     val logicalAddress: LogicalAddress,
     val serviceContract: ServiceContract
 ) {
+
     companion object {
         suspend fun load(connectionPointId: Int): List<ServiceProduction> {
             val url =
                 BASE_URL + "serviceProductions?connectionPointId=$connectionPointId&include=logicalAddress%2CserviceContract%2CserviceProducer"
             val client = ApiClient.client
 
-            val response: HttpResponse = client.get(url)
-            println(response.status)
+            val response: HttpResponse = client.get(url) {
+                timeout {
+                    requestTimeoutMillis = 30000
+                }
+            }
+            println("Loading ServiceProductions: ${response.status}")
 
             return response.body()
         }

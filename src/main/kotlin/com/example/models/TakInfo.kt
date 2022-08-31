@@ -1,9 +1,11 @@
 package com.example.models
 
+import com.example.controller.authorizationWithoutAMatchingRouting
 import com.example.controller.laNotPartOfRouting
 import com.example.controller.tkNotPartOfAuthorization
 import com.example.controller.tkNotPartOfRouting
 import kotlinx.serialization.Serializable
+import java.util.NoSuchElementException
 
 interface TakData {
     fun tableRowList(): List<String>
@@ -34,10 +36,12 @@ data class TakInfo(
     var tkNotPartOfAuthorization: List<Contract> = listOf()
     var tkNotPartOfRouting: List<Contract> = listOf()
     var laNotPartOfRouting: List<LogicalAddress> = listOf()
+    var authorizationWithoutAMatchingRouting: List<Authorization> = listOf()
 
     fun getPlattformName() = ConnectionPoint.getPlattform(cpId)!!.getPlattformName()
 
     suspend fun load() {
+        println("Loading TAK with id #${this.cpId}")
         // Contracts are created based on a subset of the information from InstalledContracts.
         val installedContracts = InstalledContract.load(cpId)
         for (ic in installedContracts) {
@@ -96,6 +100,9 @@ data class TakInfo(
 
         laNotPartOfRouting = laNotPartOfRouting(this.routings, this.logicalAddresses)
 
+        authorizationWithoutAMatchingRouting = authorizationWithoutAMatchingRouting(this.authorizations, this.routings)
+
+        println("Number of authorizationWithoutAMatchingRouting = ${authorizationWithoutAMatchingRouting.size}")
         println("TakChecks created för tak #${this.cpId}")
     }
 
@@ -124,12 +131,18 @@ suspend fun obtainTakInfo(cpId: Int): TakInfo {
  * @property major
  * @constructor Create empty Contract
  */
+
 data class Contract(
     val takInfo: TakInfo,
     val id: Int,
     val namespace: String,
     val major: Int
 ) : TakData {
+
+    val htmlString: String
+        get() {
+            return this.namespace
+        }
 
     override fun tableRowList(): List<String> =
         listOf<String>(this.id.toString(), this.namespace, this.major.toString())
@@ -148,6 +161,14 @@ data class Authorization(
 ) : TakData {
     init {
         mapped[id] = this
+
+        // Verify that the logical address is part of loaded logical addresses
+        LogicalAddress.mapped.values.find { it.id == this.logicalAddressId }
+            ?: throw NoSuchElementException("Cooperation with id $id refer to a non-existing logical address id $logicalAddressId")
+
+        // Verify that the contract is part of loaded contracts
+        ServiceContract.mapped.values.find { it.id == this.serviceContractId }
+            ?: throw NoSuchElementException("Cooperation with id $id refer to a non-existing contract id $serviceContractId")
     }
 
     override fun tableRowList(): List<String> = listOf<String>(
@@ -174,6 +195,33 @@ data class Routing(
 ) : TakData {
     init {
         mapped[id] = this
+
+        // Verify that the logical address is part of loaded logical addresses
+        LogicalAddress.mapped.values.find { it.id == this.logicalAddressId }
+            ?: throw NoSuchElementException("Routing with id $id refer to a non-existing logical address id $logicalAddressId")
+
+        // Verify that the contract is part of loaded contracts
+        ServiceContract.mapped.values.find { it.id == this.serviceContractId }
+            ?: throw NoSuchElementException("Routing with id $id refer to a non-existing contract id $serviceContractId")
+    }
+
+    fun matchAuthorization(auth: Authorization): Boolean {
+        // If different contracts no match
+        if (auth.serviceContractId != this.serviceContractId) return false
+
+        // The existence of the logical address is verified as part of Authorization.init block -> !! is ok here
+        val authLogicalAddress = LogicalAddress.mapped[auth.logicalAddressId]!!.logicalAddress
+
+        // If standard authentication is used there is always a match
+        if (
+            (authLogicalAddress == "*") ||
+            (authLogicalAddress == "SE") ||
+            (auth.logicalAddressId == this.logicalAddressId)
+        ) {
+            return true
+        }
+
+        return false
     }
 
     override fun tableRowList(): List<String> = listOf<String>(
@@ -189,3 +237,24 @@ data class Routing(
         fun columnHeadingList(): List<String> = listOf("Id", "Producent", "Kontrakt", "Logisk adress")
     }
 }
+/*
+data class Integration(
+    val id: Int,
+    val authorization: Authorization,
+    val routing: Routing
+) : TakData {
+    override fun tableRowList(): List<String> = listOf<String>(
+        this.id.toString(),
+        ServiceComponent.mapped[this.authorization.serviceComponentId]!!.htmlString,
+        ServiceContract.mapped[this.authorization.serviceContractId]!!.html,
+        LogicalAddress.mapped[this.logicalAddressId]!!.logicalAddress
+    )
+
+    companion object {
+        val mapped = mutableMapOf<Int, Integration>()
+
+        fun columnHeadingList(): List<String> =
+            listOf("Konsument", "Tjänstekontrakt", "Tjänsteproducent", "Logisk adress")
+    }
+}
+*/

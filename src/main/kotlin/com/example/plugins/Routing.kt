@@ -19,7 +19,8 @@ enum class UrlPathResource(name: String) {
     ROUTING("routings"),
     TKNOTPARTOFAUTHORIZATION("tkNotPartOfAuthorization"),
     TKNOTPARTOFROUTING("tkNotPartOfRouting"),
-    LANOTPARTOFROUTING("laNotPartOfRouting")
+    LANOTPARTOFROUTING("laNotPartOfRouting"),
+    AUTHORIZATIONWITHOUTAMATCHINGROUTING("authorizationWithoutAMatchingRouting")
 }
 
 fun Application.configureRouting() {
@@ -91,6 +92,11 @@ fun Application.configureRouting() {
             get("{tpId}/lanotpartofrouting") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
                 call.respond(showDataView(id, UrlPathResource.LANOTPARTOFROUTING))
+            }
+
+            get("{tpId}/authorizationwithoutamatchingrouting") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(showDataView(id, UrlPathResource.AUTHORIZATIONWITHOUTAMATCHINGROUTING))
             }
 
             get("") {
