@@ -14,7 +14,7 @@ suspend fun showSummaryView(id: Int): FreeMarkerContent {
             "plattforms" to com.example.models.ConnectionPoint.plattforms,
             "numOfConsumers" to takInfo.serviceConsumers.size,
             "numOfProducers" to takInfo.serviceProducers.size,
-            "numOfContracts" to takInfo.contracts.size,
+            "numOfContracts" to takInfo.serviceContracts.size,
             "numOfLogicalAddresses" to takInfo.logicalAddresses.size,
             "numOfAuthorizations" to takInfo.authorizations.size,
             "numOfRoutings" to takInfo.routings.size,
@@ -48,9 +48,9 @@ suspend fun showDataView(cpId: Int, resource: UrlPathResource): FreeMarkerConten
         }
 
         UrlPathResource.CONTRACTS -> {
-            items = takInfo.contracts
+            items = takInfo.serviceContracts
             heading = "Tjänstekontrakt i $plattformName"
-            columnHeadings = Contract.columnHeadingList()
+            columnHeadings = ServiceContract.columnHeadingList()
         }
 
         UrlPathResource.LOGICAL_ADDRESS -> {
@@ -74,13 +74,13 @@ suspend fun showDataView(cpId: Int, resource: UrlPathResource): FreeMarkerConten
         UrlPathResource.TKNOTPARTOFAUTHORIZATION -> {
             items = takInfo.tkNotPartOfAuthorization
             heading = "Tjänstekontrakt som inte ingår i någon anropsbehörighet i $plattformName"
-            columnHeadings = Contract.columnHeadingList()
+            columnHeadings = ServiceContract.columnHeadingList()
         }
 
         UrlPathResource.TKNOTPARTOFROUTING -> {
             items = takInfo.tkNotPartOfRouting
             heading = "Tjänstekontrakt som inte ingår i något vägval i $plattformName"
-            columnHeadings = Contract.columnHeadingList()
+            columnHeadings = ServiceContract.columnHeadingList()
         }
 
         UrlPathResource.LANOTPARTOFROUTING -> {

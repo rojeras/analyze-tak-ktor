@@ -25,7 +25,7 @@ data class TakInfo(
     val cpId: Int
 ) {
     // Define lists for the TAK information
-    val contracts = mutableListOf<Contract>()
+    var serviceContracts = mutableListOf<ServiceContract>()
     var logicalAddresses: List<LogicalAddress> = listOf()
     var serviceConsumers: List<ServiceComponent> = listOf<ServiceComponent>()
     var serviceProducers: List<ServiceComponent> = listOf()
@@ -33,8 +33,8 @@ data class TakInfo(
     val routings = mutableListOf<Routing>()
 
     // Define the lists for test results for this TAK
-    var tkNotPartOfAuthorization: List<Contract> = listOf()
-    var tkNotPartOfRouting: List<Contract> = listOf()
+    var tkNotPartOfAuthorization: List<ServiceContract> = listOf()
+    var tkNotPartOfRouting: List<ServiceContract> = listOf()
     var laNotPartOfRouting: List<LogicalAddress> = listOf()
     var authorizationWithoutAMatchingRouting: List<Authorization> = listOf()
 
@@ -44,16 +44,7 @@ data class TakInfo(
         println("Loading TAK with id #${this.cpId}")
         // Contracts are created based on a subset of the information from InstalledContracts.
         val installedContracts = InstalledContract.load(cpId)
-        for (ic in installedContracts) {
-            contracts.add(
-                Contract(
-                    this,
-                    ic.serviceContract.id,
-                    ic.serviceContract.namespace,
-                    ic.serviceContract.major
-                )
-            )
-        }
+        serviceContracts = installedContracts.map { it.serviceContract }.toMutableList()
 
         // Logical addresses from TAK-api are used as-is
         logicalAddresses = LogicalAddress.load(cpId)
@@ -91,12 +82,14 @@ data class TakInfo(
             )
         }
 
+        // Create the list of integrations by combining authorizations and routings
+
         println("TakInfo loading of tak #${this.cpId} complete")
 
         // Time to perform the TAK checks
-        tkNotPartOfAuthorization = tkNotPartOfAuthorization(this.authorizations, this.contracts)
+        tkNotPartOfAuthorization = tkNotPartOfAuthorization(this.authorizations, this.serviceContracts)
 
-        tkNotPartOfRouting = tkNotPartOfRouting(this.routings, this.contracts)
+        tkNotPartOfRouting = tkNotPartOfRouting(this.routings, this.serviceContracts)
 
         laNotPartOfRouting = laNotPartOfRouting(this.routings, this.logicalAddresses)
 
@@ -122,36 +115,6 @@ suspend fun obtainTakInfo(cpId: Int): TakInfo {
     return takInfo
 }
 
-/**
- * Contract information.
- * These objects are created based on information from tha TAK-api.
- *
- * @property id
- * @property namespace
- * @property major
- * @constructor Create empty Contract
- */
-
-data class Contract(
-    val takInfo: TakInfo,
-    val id: Int,
-    val namespace: String,
-    val major: Int
-) : TakData {
-
-    val htmlString: String
-        get() {
-            return this.namespace
-        }
-
-    override fun tableRowList(): List<String> =
-        listOf<String>(this.id.toString(), this.namespace, this.major.toString())
-
-    companion object {
-        fun columnHeadingList(): List<String> = listOf("Id", "Tjänstekontraktets namnrymd", "Major")
-    }
-}
-
 @Serializable
 data class Authorization(
     val id: Int,
@@ -173,9 +136,9 @@ data class Authorization(
 
     override fun tableRowList(): List<String> = listOf<String>(
         this.id.toString(),
-        ServiceComponent.mapped[this.serviceComponentId]!!.description,
-        ServiceContract.mapped[this.serviceContractId]!!.namespace,
-        LogicalAddress.mapped[this.logicalAddressId]!!.description
+        ServiceComponent.mapped[this.serviceComponentId]!!.htmlString,
+        ServiceContract.mapped[this.serviceContractId]!!.htmlString,
+        LogicalAddress.mapped[this.logicalAddressId]!!.htmlString
     )
 
     companion object {
@@ -226,9 +189,9 @@ data class Routing(
 
     override fun tableRowList(): List<String> = listOf<String>(
         this.id.toString(),
-        ServiceComponent.mapped[this.serviceComponentId]!!.description,
-        ServiceContract.mapped[this.serviceContractId]!!.namespace,
-        LogicalAddress.mapped[this.logicalAddressId]!!.logicalAddress
+        ServiceComponent.mapped[this.serviceComponentId]!!.htmlString,
+        ServiceContract.mapped[this.serviceContractId]!!.htmlString,
+        LogicalAddress.mapped[this.logicalAddressId]!!.htmlString
     )
 
     companion object {
@@ -237,7 +200,7 @@ data class Routing(
         fun columnHeadingList(): List<String> = listOf("Id", "Producent", "Kontrakt", "Logisk adress")
     }
 }
-/*
+
 data class Integration(
     val id: Int,
     val authorization: Authorization,
@@ -246,8 +209,9 @@ data class Integration(
     override fun tableRowList(): List<String> = listOf<String>(
         this.id.toString(),
         ServiceComponent.mapped[this.authorization.serviceComponentId]!!.htmlString,
-        ServiceContract.mapped[this.authorization.serviceContractId]!!.html,
-        LogicalAddress.mapped[this.logicalAddressId]!!.logicalAddress
+        ServiceContract.mapped[this.authorization.serviceContractId]!!.htmlString,
+        ServiceComponent.mapped[this.routing.serviceComponentId]!!.htmlString,
+        LogicalAddress.mapped[this.authorization.logicalAddressId]!!.htmlString
     )
 
     companion object {
@@ -257,4 +221,3 @@ data class Integration(
             listOf("Konsument", "Tjänstekontrakt", "Tjänsteproducent", "Logisk adress")
     }
 }
-*/

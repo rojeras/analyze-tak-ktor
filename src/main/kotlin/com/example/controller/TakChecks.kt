@@ -1,16 +1,16 @@
 package com.example.controller
 
-import com.example.models.Authorization
-import com.example.models.Contract
-import com.example.models.LogicalAddress
-import com.example.models.Routing
+import com.example.models.*
 
-fun tkNotPartOfAuthorization(authorizations: List<Authorization>, contracts: List<Contract>): List<Contract> {
+fun tkNotPartOfAuthorization(
+    authorizations: List<Authorization>,
+    contracts: List<ServiceContract>
+): List<ServiceContract> {
     val usedTkInAuth = authorizations.map { it.serviceContractId }.toSet()
     return contracts.filterNot { usedTkInAuth.contains(it.id) }
 }
 
-fun tkNotPartOfRouting(routings: List<Routing>, contracts: List<Contract>): List<Contract> {
+fun tkNotPartOfRouting(routings: List<Routing>, contracts: List<ServiceContract>): List<ServiceContract> {
     val usedTkInRouting = routings.map { it.serviceContractId }.toSet()
     return contracts.filterNot { usedTkInRouting.contains(it.id) }
 }

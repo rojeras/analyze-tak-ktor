@@ -138,17 +138,30 @@ data class ServiceContract(
         mapped[id] = this
     }
 
+    val domainName: String
+        get() {
+            val parts = namespace.split(":")
+            val endOfDomainIx = parts.size - 1 - 2
+            return parts.slice(2..endOfDomainIx).joinToString(":")
+        }
+
+    val contractName: String
+        get() {
+            val parts = namespace.split(":")
+            val endOfDomainIx = parts.size - 1 - 2
+            return parts[parts.size - 2]
+        }
     val htmlString: String
         get() {
-            return "<i>${this.namespace}</i><br>${this.major}"
+            return "<i>${this.domainName}</i><br>${this.contractName} v${this.major}"
         }
 
     override fun tableRowList(): List<String> =
-        listOf<String>(this.id.toString(), this.namespace, this.major.toString())
+        listOf<String>(this.id.toString(), this.domainName, this.contractName, this.major.toString())
 
     companion object {
         val mapped = mutableMapOf<Int, ServiceContract>()
-        fun columnHeadingList(): List<String> = listOf("Id", "Tjänstekontraktets namnrymd", "Major")
+        fun columnHeadingList(): List<String> = listOf("Id", "Tjänstedomän", "Tjänstekontrakt", "Major")
     }
 }
 

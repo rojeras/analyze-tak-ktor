@@ -57,7 +57,10 @@ class ApplicationTest {
     fun testTakInfo1() = runBlocking {
         val takInfo = obtainTakInfo(7)
 
-        assertTrue(takInfo.contracts.size > 120 && takInfo.contracts.size < 140, "Wrong number of contracts")
+        assertTrue(
+            takInfo.serviceContracts.size > 120 && takInfo.serviceContracts.size < 140,
+            "Wrong number of contracts"
+        )
         // assertTrue(takInfo5.logicalAddress.size > 4500 && takInfo5.logicalAddress.size < 4600, "Wrong number of logical addresses")
     }
 
