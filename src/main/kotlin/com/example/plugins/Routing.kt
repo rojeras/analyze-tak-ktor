@@ -2,13 +2,16 @@ package com.example.plugins
 
 import com.example.models.*
 import com.example.view.*
+import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
 import io.ktor.server.http.content.*
+import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
+import kotlinx.serialization.json.Json
 
 enum class UrlPathResource(name: String) {
     CONTRACTS("contracts"),
@@ -38,15 +41,43 @@ fun Application.configureRouting() {
         }
 
         route("tak") {
+            get("") {
+                println("In tak/select")
+                call.respond(
+                    io.ktor.server.freemarker.FreeMarkerContent(
+                        "select.ftl",
+                        kotlin.collections.mapOf(
+                            "plattforms" to com.example.models.ConnectionPoint.plattforms,
+                            "cpId" to 0
+                        )
+                    )
+                )
+            }
+
             get("{tpId}") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
                 call.respond(showSummaryView(id))
             }
-
+            /*
             get("{tpId}/consumers") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
                 // call.respond(showComponentView(id, UrlPathResource.CONSUMERS))
                 call.respond(showDataView(id, UrlPathResource.CONSUMERS))
+            }
+            */
+            get("{tpId}/consumers") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                // call.respond(showComponentView(id, UrlPathResource.CONSUMERS))
+                call.respond(
+                    FreeMarkerContent(
+                        "tabulatorview.ftl",
+                        kotlin.collections.mapOf(
+                            "heading" to "heading",
+                            "tableHeadings" to "columnHeadings",
+                            "viewData" to "content"
+                        )
+                    )
+                )
             }
 
             get("{tpId}/producers") {
@@ -98,18 +129,23 @@ fun Application.configureRouting() {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
                 call.respond(showDataView(id, UrlPathResource.AUTHORIZATIONWITHOUTAMATCHINGROUTING))
             }
+        }
 
-            get("") {
-                println("In tak/select")
-                call.respond(
-                    io.ktor.server.freemarker.FreeMarkerContent(
-                        "select.ftl",
-                        kotlin.collections.mapOf(
-                            "plattforms" to com.example.models.ConnectionPoint.plattforms,
-                            "cpId" to 0
-                        )
-                    )
+        route("api") {
+            install(ContentNegotiation) {
+                json(
+                    Json {
+                        prettyPrint = true
+                        isLenient = true
+                    }
                 )
+            }
+            get("tak/{tpId}/consumers") {
+                val id = call.parameters.getOrFail<Int>("tpId").toInt()
+                // call.respond(showComponentView(id, UrlPathResource.CONSUMERS))
+                val takInfo = obtainTakInfo(id)
+
+                call.respond(takInfo.serviceConsumers)
             }
         }
     }

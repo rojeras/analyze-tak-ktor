@@ -130,7 +130,7 @@ class ApplicationTest {
         LogicalAddress.load(6)
         InstalledContract.load(6)
 
-        val asteriskLaIdInTp5 = 18174
+        val asteriskLaIdInTp5 = 18175
 
         val auth1 = Authorization(5, 1, asteriskLaIdInTp5, 6)
         val rout1 = Routing(5, 2, 5, 6, "dummy")

@@ -2,7 +2,10 @@ package com.example
 
 import com.example.models.ConnectionPoint
 import com.example.plugins.*
+import io.ktor.serialization.kotlinx.json.*
+// import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.contentnegotiation.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
@@ -21,7 +24,6 @@ fun main(args: Array<String>) {
                 val id = cp.id
                 println("$id ${cp.platform}-${cp.environment}")
             }
-
             io.ktor.server.netty.EngineMain.main(args)
         }
     }
