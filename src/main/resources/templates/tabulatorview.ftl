@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link href="https://unpkg.com/tabulator-tables@5.2.3/dist/css/tabulator.min.css" rel="stylesheet">
+    <link href="/static/tabulator/css/tabulator.min.css" rel="stylesheet">
 </head>
 <body>
 <div id="example-table"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/luxon/build/global/luxon.min.js"></script>
-<script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.2.3/dist/js/tabulator.min.js"></script>
 
+<script type="text/javascript" src="/static/tabulator/js/tabulator.min.js"></script>
 <script type="text/javascript">
     //sample data
     var tabledata = [
