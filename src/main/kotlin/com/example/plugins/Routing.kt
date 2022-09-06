@@ -67,17 +67,7 @@ fun Application.configureRouting() {
             */
             get("{tpId}/consumers") {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                // call.respond(showComponentView(id, UrlPathResource.CONSUMERS))
-                call.respond(
-                    FreeMarkerContent(
-                        "tabulatorview.ftl",
-                        kotlin.collections.mapOf(
-                            "heading" to "heading",
-                            "tableHeadings" to "columnHeadings",
-                            "viewData" to "content"
-                        )
-                    )
-                )
+                call.respond(showTabulatorView(id, UrlPathResource.CONSUMERS))
             }
 
             get("{tpId}/producers") {

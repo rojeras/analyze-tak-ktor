@@ -42,5 +42,18 @@
 * Länkar
     * Ev lägger vi på länkar från vissa objekt till hippo och/eller TkView
 
+# Designfunderingar
+
+## Källa och datalager
+
+En utmaning i att implementera visualisering och städning är vilken källa för TAK-info som skall användas.
+Python-prototypen accessade en TAK-db direkt.
+KTOR-prototypen försökte istället gå visa TAK-api. Det har en del stora fördelar, men det har visat sig att det saknas
+information vilket gör att det inte går att implementera alla kontroller.
+Man skulle också kunna tänka sig TPDB. Men, det är begränsat till TAK-api och inte heller komplett.
+Ytterligare en källa som föreslagits är export-filerna.
+Ev får vi ge analyze-applikationen ett eget datalager som kan populeras på olika sätt.
+
 # Övrigt
+
 * Länk till SKLTP källkod: https://github.com/skltp 
