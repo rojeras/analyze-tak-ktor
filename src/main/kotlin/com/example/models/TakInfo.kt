@@ -122,6 +122,11 @@ suspend fun obtainTakInfo(cpId: Int): TakInfo {
     return takInfo
 }
 
+suspend fun getPlattformName(cpId: Int): String {
+    val takInfo = obtainTakInfo(cpId)
+    return takInfo.getPlattformName()
+}
+
 @Serializable
 data class Authorization(
     val id: Int,

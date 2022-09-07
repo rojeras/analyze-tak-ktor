@@ -44,7 +44,7 @@ object ApiClient {
     init {
         println("Client is being initialized")
         client = HttpClient(CIO) {
-            install(HttpTimeout) { requestTimeoutMillis = 10000 }
+            install(HttpTimeout) { requestTimeoutMillis = 60000 }
             install(ContentNegotiation) {
                 json(
                     Json {
@@ -237,6 +237,12 @@ data class ServiceComponent(
         val mapped = mutableMapOf<Int, ServiceComponent>()
         val listed: List<ServiceComponent> = mapped.values.toList()
 
+        val tabulatorRowSpecifications: List<TabulatorRowSpecification> = listOf(
+            TabulatorRowSpecification("id", "id", "string"),
+            TabulatorRowSpecification("HsaId", "hsaId", "string"),
+            TabulatorRowSpecification("Beskrivning", "description", "string")
+        )
+
         suspend fun load(componentType: ComponentType, connectionPointId: Int): List<ServiceComponent> {
             val resource: String = when (componentType) {
                 ComponentType.CONSUMER -> "serviceConsumers"
@@ -329,3 +335,9 @@ data class ServiceProduction(
         }
     }
 }
+
+data class TabulatorRowSpecification(
+    val title: String,
+    val field: String,
+    val sorter: String
+)

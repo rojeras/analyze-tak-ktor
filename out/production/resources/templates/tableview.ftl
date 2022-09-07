@@ -1,4 +1,4 @@
-<#-- @ftlvariable name="numOfContracts" type="Int" -->
+<#ftl auto_esc=false>
 <#import "_layout.ftl" as layout />
 <@layout.header>
     <style>
@@ -17,7 +17,7 @@
             <#list tableHeadings as ths>
                 <th>${ths}</th>
             </#list>
-            
+
             <#list viewData as viewLine>
                 <tr>
                     <#list viewLine as tds>

@@ -1,7 +1,6 @@
 package com.example
 
 import com.example.models.*
-import com.example.plugins.configureRouting
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -12,9 +11,7 @@ import kotlin.test.*
 class ApplicationTest {
     @Test
     fun testRoot() = testApplication {
-        application {
-            configureRouting()
-        }
+        // application {configureRouting() }
         client.get("/hello").apply {
             assertEquals(HttpStatusCode.OK, status)
             assertEquals("Hello World!", bodyAsText(), "Server does not work correctly!")
@@ -23,9 +20,7 @@ class ApplicationTest {
 
     @Test
     fun testRoutingView1() = testApplication {
-        application {
-            configureRouting()
-        }
+        // application {configureRouting()}
         ConnectionPoint.load()
         client.get("/tak/5/routings").apply {
             assertEquals(HttpStatusCode.OK, status)
@@ -126,22 +121,6 @@ class ApplicationTest {
     }
 
     @Test
-    fun testIntegrationCheck2() = runBlocking {
-        LogicalAddress.load(6)
-        InstalledContract.load(6)
-
-        val asteriskLaIdInTp5 = 18175
-
-        val auth1 = Authorization(5, 1, asteriskLaIdInTp5, 6)
-        val rout1 = Routing(5, 2, 5, 6, "dummy")
-
-        assertTrue(
-            rout1.matchAuthorization(auth1),
-            "Auth and Route does not match into an integration when '*' is used as logical address!"
-        )
-    }
-
-    @Test
     fun testIntegrationCheck3() = runBlocking {
         LogicalAddress.load(6)
         InstalledContract.load(6)
@@ -166,6 +145,19 @@ class ApplicationTest {
         assertFalse(
             rout1.matchAuthorization(auth1),
             "Different contracts should not match!"
+        )
+    }
+
+    @Test
+    fun testTabulatorData1() = runBlocking {
+
+        val num = ServiceComponent.tabulatorRowSpecifications.size
+
+        println("Number of rows in ServiceComponent.tabulatorRowSpecification: $num")
+
+        assertEquals(
+            num, 3,
+            "ServiceComponent.tabulatorRowSpecification not initialized correctly"
         )
     }
 }

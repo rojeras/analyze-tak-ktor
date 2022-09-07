@@ -116,76 +116,67 @@ suspend fun showTabulatorView(cpId: Int, resource: UrlPathResource): FreeMarkerC
     val plattformName = takInfo.getPlattformName()
 
     val heading: String
-    var columnHeadings: List<String> = listOf()
-    val ajaxUrl: String
+    var ajaxUrl: String = "/api/tak/$cpId/${resource.name.lowercase()}"
+    var tabulatorRowSpecifications: List<TabulatorRowSpecification> = listOf<TabulatorRowSpecification>()
 
     when (resource) {
         UrlPathResource.CONSUMERS -> {
-            ajaxUrl = "/api/tak/$cpId/consumers"
+            // ajaxUrl = "/api/tak/$cpId/consumers"
             heading = "Tjänstekonsumenter i $plattformName"
-            columnHeadings = ServiceComponent.columnHeadingList()
+            tabulatorRowSpecifications = ServiceComponent.tabulatorRowSpecifications
         }
 
         UrlPathResource.PRODUCERS -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Tjänsteproducenter i $plattformName"
-            columnHeadings = ServiceComponent.columnHeadingList()
         }
 
         UrlPathResource.CONTRACTS -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Tjänstekontrakt i $plattformName"
-            columnHeadings = ServiceContract.columnHeadingList()
         }
 
         UrlPathResource.LOGICAL_ADDRESS -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Logiska adresser i $plattformName"
-            columnHeadings = LogicalAddress.columnHeadingList()
         }
 
         UrlPathResource.AUTHORIZATION -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Anropsbehörigheter i $plattformName"
-            columnHeadings = Authorization.columnHeadingList()
         }
 
         UrlPathResource.ROUTING -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Vägval i $plattformName"
-            columnHeadings = Routing.columnHeadingList()
         }
 
         UrlPathResource.TKNOTPARTOFAUTHORIZATION -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Tjänstekontrakt som inte ingår i någon anropsbehörighet i $plattformName"
-            columnHeadings = ServiceContract.columnHeadingList()
         }
 
         UrlPathResource.TKNOTPARTOFROUTING -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Tjänstekontrakt som inte ingår i något vägval i $plattformName"
-            columnHeadings = ServiceContract.columnHeadingList()
         }
 
         UrlPathResource.LANOTPARTOFROUTING -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Logiska adresser som inte ingår i något vägval i $plattformName"
-            columnHeadings = LogicalAddress.columnHeadingList()
         }
 
         UrlPathResource.AUTHORIZATIONWITHOUTAMATCHINGROUTING -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Anropsbehörigheter som inte ingår i något vägval i $plattformName"
-            columnHeadings = Authorization.columnHeadingList()
         }
     }
 
     return io.ktor.server.freemarker.FreeMarkerContent(
-        "tableview.ftl",
+        "tabulatorview.ftl",
         kotlin.collections.mapOf(
             "heading" to heading,
-            "tableHeadings" to columnHeadings,
+            "tabulatorViewSpecifications" to tabulatorRowSpecifications,
             "ajaxUrl" to ajaxUrl
         )
     )

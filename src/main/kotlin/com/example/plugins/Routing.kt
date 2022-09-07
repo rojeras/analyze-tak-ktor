@@ -7,13 +7,12 @@ import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
 import io.ktor.server.http.content.*
 import io.ktor.server.plugins.contentnegotiation.*
-import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import kotlinx.serialization.json.Json
 
-enum class UrlPathResource(name: String) {
+enum class UrlPathResource(urlName: String) {
     CONTRACTS("contracts"),
     CONSUMERS("consumers"),
     PRODUCERS("producers"),
@@ -66,8 +65,18 @@ fun Application.configureRouting() {
             }
             */
             get("{tpId}/consumers") {
-                val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(showTabulatorView(id, UrlPathResource.CONSUMERS))
+                val cpId = call.parameters.getOrFail<Int>("tpId").toInt()
+                call.respond(
+                    FreeMarkerContent(
+                        "tabulatorview.ftl",
+                        kotlin.collections.mapOf(
+                            "heading" to "Tjänstekonsumenter i ${getPlattformName(cpId)}",
+                            "tabulatorViewSpecifications" to ServiceComponent.tabulatorRowSpecifications,
+                            "ajaxUrl" to "/api/tak/$cpId/consumers"
+                        )
+                    )
+                )
+                // call.respond(showTabulatorView(id, UrlPathResource.CONSUMERS))
             }
 
             get("{tpId}/producers") {
