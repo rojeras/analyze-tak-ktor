@@ -3,7 +3,7 @@
 <@layout.header>
     <div>
         <h3>
-            Sammanställning för ${plattform.platform}-${plattform.environment}
+            Sammanställning för ${platformName}
         </h3>
         <h4>Information om TAK-databasen</h4>
         <p>

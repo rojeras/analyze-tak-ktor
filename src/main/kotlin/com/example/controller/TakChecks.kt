@@ -4,15 +4,15 @@ import com.example.models.*
 
 fun tkNotPartOfAuthorization(
     authorizations: List<Authorization>,
-    contracts: List<ServiceContract>
-): List<ServiceContract> {
+    contracts: List<Contract>
+): List<Contract> {
     val usedTkInAuth = authorizations.map { it.serviceContractId }.toSet()
-    return contracts.filterNot { usedTkInAuth.contains(it.id) }
+    return contracts.filterNot { usedTkInAuth.contains(it.idInSource) }
 }
 
-fun tkNotPartOfRouting(routings: List<Routing>, contracts: List<ServiceContract>): List<ServiceContract> {
+fun tkNotPartOfRouting(routings: List<Routing>, contracts: List<Contract>): List<Contract> {
     val usedTkInRouting = routings.map { it.serviceContractId }.toSet()
-    return contracts.filterNot { usedTkInRouting.contains(it.id) }
+    return contracts.filterNot { usedTkInRouting.contains(it.idInSource) }
 }
 
 fun laNotPartOfRouting(routings: List<Routing>, logicalAddresses: List<LogicalAddress>): List<LogicalAddress> {

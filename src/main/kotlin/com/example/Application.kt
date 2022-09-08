@@ -1,6 +1,6 @@
 package com.example
 
-import com.example.models.ConnectionPoint
+import com.example.models.loadAllPlatforms
 import com.example.plugins.*
 import io.ktor.serialization.kotlinx.json.*
 // import io.ktor.serialization.kotlinx.json.*
@@ -18,12 +18,7 @@ fun main(args: Array<String>) {
         println("Server starting")
 
         launch {
-            ConnectionPoint.load()
-
-            for (cp in ConnectionPoint.plattforms) {
-                val id = cp.id
-                println("$id ${cp.platform}-${cp.environment}")
-            }
+            loadAllPlatforms()
             io.ktor.server.netty.EngineMain.main(args)
         }
     }

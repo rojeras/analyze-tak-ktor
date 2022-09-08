@@ -17,6 +17,15 @@ package com.example.models
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * This file serve to access and fetch data from the TAK-api. The classes match
+ * the data as it is returned from the API.
+ * No application specific information should be included in these classes. Such should
+ * be put in TakInfo.kt.
+ * A new information source (for example direct access to the TAK-database can be
+ * implemented in parallell to the logic in this file.
+ */
+
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
@@ -78,22 +87,14 @@ data class ConnectionPoint(
 
     companion object {
 
-        lateinit var plattforms: List<ConnectionPoint>
-
-        suspend fun load() {
+        suspend fun load(): List<ConnectionPoint> {
             val url = BASE_URL + "connectionPoints"
             val client = ApiClient.client
 
             val response: HttpResponse = client.get(url)
             println("Loading ConnectionPoints: ${response.status}")
 
-            plattforms = response.body()
-
-            println("In load connectionPoints")
-        }
-
-        fun getPlattform(cpId: Int): ConnectionPoint? {
-            return plattforms.filter { it.id == cpId }[0]
+            return response.body()
         }
     }
 }
@@ -113,7 +114,7 @@ data class InstalledContract(
             val client = ApiClient.client
 
             val response: HttpResponse = client.get(url)
-            println("Loading InstalledContracts: ${response.status}")
+            println("Loaded InstalledContracts: ${response.status}")
 
             return response.body()
         }
@@ -121,49 +122,16 @@ data class InstalledContract(
 }
 
 /**
- * Represent ServiceContract in the TAK-api (part of InstalledContract)
- *
- * @param answer A list of [InstalledContract]
- * @param lastChangeTime Time when the server cache was last updated.
+ * Represent the ServiceContract (part of InstalledContract) in the TAK-api
  */
 @Serializable
 data class ServiceContract(
     val id: Int,
-    val name: String?,
+    val name: String? = null,
     val namespace: String,
     val major: Int,
     val minor: Int
-) : TakData {
-    init {
-        mapped[id] = this
-    }
-
-    val domainName: String
-        get() {
-            val parts = namespace.split(":")
-            val endOfDomainIx = parts.size - 1 - 2
-            return parts.slice(2..endOfDomainIx).joinToString(":")
-        }
-
-    val contractName: String
-        get() {
-            val parts = namespace.split(":")
-            val endOfDomainIx = parts.size - 1 - 2
-            return parts[parts.size - 2]
-        }
-    val htmlString: String
-        get() {
-            return "<i>${this.domainName}</i><br>${this.contractName} v${this.major}"
-        }
-
-    override fun tableRowList(): List<String> =
-        listOf<String>(this.id.toString(), this.domainName, this.contractName, this.major.toString())
-
-    companion object {
-        val mapped = mutableMapOf<Int, ServiceContract>()
-        fun columnHeadingList(): List<String> = listOf("Id", "Tjänstedomän", "Tjänstekontrakt", "Major")
-    }
-}
+)
 
 /**
  * Represent the response from a call to TAK-api LogicalAddresss
@@ -173,7 +141,7 @@ data class LogicalAddress(
     val id: Int,
     val logicalAddress: String,
     val description: String
-) : TakData {
+) {
     init {
         mapped[id] = this
     }
@@ -183,19 +151,20 @@ data class LogicalAddress(
             return "<i>${this.description}</i><br>${this.logicalAddress}"
         }
 
-    override fun tableRowList(): List<String> =
-        listOf<String>(this.id.toString(), this.logicalAddress, this.description)
+    // override fun tableRowList(): List<String> =
+    //    listOf<String>(this.id.toString(), this.logicalAddress, this.description)
 
     companion object {
 
         val mapped = mutableMapOf<Int, LogicalAddress>()
 
         suspend fun load(connectionPointId: Int): List<LogicalAddress> {
+            println("Will load logical addresses")
             val url = BASE_URL + "logicalAddresss?connectionPointId=$connectionPointId"
             val client = ApiClient.client
 
             val response: HttpResponse = client.get(url)
-            println("Loading LogicalAddresses: ${response.status}")
+            println("Loaded LogicalAddresses: ${response.status}")
 
             return response.body()
         }
@@ -220,7 +189,7 @@ data class ServiceComponent(
     val id: Int,
     val hsaId: String,
     val description: String = "-"
-) : TakData {
+) {
     init {
         mapped[id] = this
     }
@@ -230,7 +199,7 @@ data class ServiceComponent(
             return "<i>${this.description}</i><br>${this.hsaId}"
         }
 
-    override fun tableRowList(): List<String> = listOf<String>(this.id.toString(), this.hsaId, this.description)
+    // override fun tableRowList(): List<String> = listOf<String>(this.id.toString(), this.hsaId, this.description)
 
     companion object {
 

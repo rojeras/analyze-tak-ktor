@@ -53,7 +53,7 @@ class ApplicationTest {
         val takInfo = obtainTakInfo(7)
 
         assertTrue(
-            takInfo.serviceContracts.size > 120 && takInfo.serviceContracts.size < 140,
+            takInfo.contracts.size > 120 && takInfo.contracts.size < 140,
             "Wrong number of contracts"
         )
         // assertTrue(takInfo5.logicalAddress.size > 4500 && takInfo5.logicalAddress.size < 4600, "Wrong number of logical addresses")
@@ -150,13 +150,13 @@ class ApplicationTest {
 
     @Test
     fun testTabulatorData1() = runBlocking {
-
         val num = ServiceComponent.tabulatorRowSpecifications.size
 
         println("Number of rows in ServiceComponent.tabulatorRowSpecification: $num")
 
         assertEquals(
-            num, 3,
+            num,
+            3,
             "ServiceComponent.tabulatorRowSpecification not initialized correctly"
         )
     }
