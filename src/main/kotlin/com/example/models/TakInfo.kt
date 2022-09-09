@@ -24,6 +24,9 @@ package com.example.models
  */
 
 import com.example.controller.*
+import io.ktor.server.application.*
+import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import kotlinx.serialization.Serializable
 import java.util.NoSuchElementException
 
@@ -34,6 +37,26 @@ enum class PLATFORM_ID {
     `SLL-PROD`, // ktlint-disable enum-entry-name-case
     `SLL-QA` // ktlint-disable enum-entry-name-case
 }
+
+enum class ViewDataTypes(val typeName: String) {
+    CONTRACTS("contracts"),
+    CONSUMERS("consumers"),
+    PRODUCERS("producers"),
+    LOGICAL_ADDRESS("logicaladdress"),
+    AUTHORIZATION("authorizations"),
+    ROUTING("routings"),
+    TKNOTPARTOFAUTHORIZATION("tkNotPartOfAuthorization"),
+    TKNOTPARTOFROUTING("tkNotPartOfRouting"),
+    LANOTPARTOFROUTING("laNotPartOfRouting"),
+    AUTHORIZATIONWITHOUTAMATCHINGROUTING("authorizationWithoutAMatchingRouting");
+
+    companion object {
+        fun getByName(aName: String) = ViewDataTypes.values().firstOrNull { it.typeName == aName }
+    }
+}
+
+fun platformName2platformId(name: String): PLATFORM_ID = PLATFORM_ID.valueOf(name)
+fun platformId2platformName(pId: PLATFORM_ID): String = pId.name
 
 interface TakData {
     // fun tableRowList(): List<String>
@@ -69,6 +92,11 @@ suspend fun loadAllPlatforms() {
 data class TakInfo(
     val platformId: PLATFORM_ID
 ) {
+    init {
+        // Component.tabulatorRowSpecifications.also { this.tabulatorRowSpecification[ViewDataTypes.CONSUMERS] = it }
+        tabulatorRowSpecification[ViewDataTypes.CONSUMERS] = Component.tabulatorRowSpecifications
+    }
+
     val connectionPointId = Platform.mapped[platformId]!!.idInSource
 
     // Define lists for the TAK information
@@ -88,6 +116,7 @@ data class TakInfo(
     var authorizationWithoutAMatchingRouting: List<Authorization> = listOf()
 
     val platformName = Platform.mapped[platformId]!!.platformName
+
 
     suspend fun load() {
         println("Loading $platformName")
@@ -186,10 +215,17 @@ data class TakInfo(
 
     companion object {
         val takStore = mutableMapOf<PLATFORM_ID, TakInfo>()
+
+        var tabulatorRowSpecification = mutableMapOf<ViewDataTypes, List<TabulatorRowSpecification>>()
     }
 }
 
-suspend fun obtainTakInfo(platformId: PLATFORM_ID): TakInfo {
+suspend fun obtainTakInfoBasedOnName(platformName: String): TakInfo {
+    val platformId = platformName2platformId(platformName)
+    return obtainTakInfoBasedOnId(platformId)
+}
+
+suspend fun obtainTakInfoBasedOnId(platformId: PLATFORM_ID): TakInfo {
     if (TakInfo.takStore.containsKey(platformId)) {
         return TakInfo.takStore[platformId]!! // todo: Get rid of !!
     }
@@ -275,6 +311,12 @@ data class Component(
 
     companion object {
         val mapped = mutableMapOf<String, Component>()
+
+        val tabulatorRowSpecifications: List<TabulatorRowSpecification> = listOf(
+            TabulatorRowSpecification("id", "id", "string"),
+            TabulatorRowSpecification("HsaId", "hsaId", "string"),
+            TabulatorRowSpecification("Beskrivning", "description", "string")
+        )
     }
 }
 

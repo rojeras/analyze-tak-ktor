@@ -1,11 +1,10 @@
 package com.example.view
 
 import com.example.models.*
-import com.example.plugins.UrlPathResource
 import io.ktor.server.freemarker.*
 
 suspend fun showSummaryView(platformId: PLATFORM_ID): FreeMarkerContent {
-    val takInfo = obtainTakInfo(platformId)
+    val takInfo = obtainTakInfoBasedOnId(platformId)
     return FreeMarkerContent(
         "summary.ftl",
         mapOf(
@@ -24,8 +23,8 @@ suspend fun showSummaryView(platformId: PLATFORM_ID): FreeMarkerContent {
     )
 }
 
-suspend fun showDataView(platformId: PLATFORM_ID, resource: UrlPathResource): FreeMarkerContent {
-    val takInfo = obtainTakInfo(platformId)
+suspend fun showDataView(platformId: PLATFORM_ID, resource: ViewDataTypes): FreeMarkerContent {
+    val takInfo = obtainTakInfoBasedOnId(platformId)
     val platformName = takInfo.platformName
 
     val items: List<TakData>
@@ -33,61 +32,61 @@ suspend fun showDataView(platformId: PLATFORM_ID, resource: UrlPathResource): Fr
     var columnHeadings: List<String> = listOf()
 
     when (resource) {
-        UrlPathResource.CONSUMERS -> {
+        ViewDataTypes.CONSUMERS -> {
             items = takInfo.serviceConsumers
             heading = "Tjänstekonsumenter i $platformName"
             columnHeadings = ServiceComponent.columnHeadingList()
         }
 
-        UrlPathResource.PRODUCERS -> {
+        ViewDataTypes.PRODUCERS -> {
             items = takInfo.serviceProducers
             heading = "Tjänsteproducenter i $platformName"
             columnHeadings = ServiceComponent.columnHeadingList()
         }
 
-        UrlPathResource.CONTRACTS -> {
+        ViewDataTypes.CONTRACTS -> {
             items = takInfo.contracts
             heading = "Tjänstekontrakt i $platformName"
             columnHeadings = Contract.columnHeadingList()
         }
 
-        UrlPathResource.LOGICAL_ADDRESS -> {
+        ViewDataTypes.LOGICAL_ADDRESS -> {
             items = takInfo.logicalAddresses
             heading = "Logiska adresser i $platformName"
             columnHeadings = LogicalAddress.columnHeadingList()
         }
 
-        UrlPathResource.AUTHORIZATION -> {
+        ViewDataTypes.AUTHORIZATION -> {
             items = takInfo.authorizations
             heading = "Anropsbehörigheter i $platformName"
             columnHeadings = Authorization.columnHeadingList()
         }
 
-        UrlPathResource.ROUTING -> {
+        ViewDataTypes.ROUTING -> {
             items = takInfo.routings
             heading = "Vägval i $platformName"
             columnHeadings = Routing.columnHeadingList()
         }
 
-        UrlPathResource.TKNOTPARTOFAUTHORIZATION -> {
+        ViewDataTypes.TKNOTPARTOFAUTHORIZATION -> {
             items = takInfo.tkNotPartOfAuthorization
             heading = "Tjänstekontrakt som inte ingår i någon anropsbehörighet i $platformName"
             columnHeadings = Contract.columnHeadingList()
         }
 
-        UrlPathResource.TKNOTPARTOFROUTING -> {
+        ViewDataTypes.TKNOTPARTOFROUTING -> {
             items = takInfo.tkNotPartOfRouting
             heading = "Tjänstekontrakt som inte ingår i något vägval i $platformName"
             columnHeadings = Contract.columnHeadingList()
         }
 
-        UrlPathResource.LANOTPARTOFROUTING -> {
+        ViewDataTypes.LANOTPARTOFROUTING -> {
             items = takInfo.laNotPartOfRouting
             heading = "Logiska adresser som inte ingår i något vägval i $platformName"
             columnHeadings = LogicalAddress.columnHeadingList()
         }
 
-        UrlPathResource.AUTHORIZATIONWITHOUTAMATCHINGROUTING -> {
+        ViewDataTypes.AUTHORIZATIONWITHOUTAMATCHINGROUTING -> {
             items = takInfo.authorizationWithoutAMatchingRouting
             heading = "Anropsbehörigheter som inte ingår i något vägval i $platformName"
             columnHeadings = Authorization.columnHeadingList()
@@ -111,8 +110,8 @@ suspend fun showDataView(platformId: PLATFORM_ID, resource: UrlPathResource): Fr
     )
 }
 
-suspend fun showTabulatorView(platformId: PLATFORM_ID, resource: UrlPathResource): FreeMarkerContent {
-    val takInfo = obtainTakInfo(platformId)
+suspend fun showTabulatorView(platformId: PLATFORM_ID, resource: ViewDataTypes): FreeMarkerContent {
+    val takInfo = obtainTakInfoBasedOnId(platformId)
     val platformName = takInfo.platformName
 
     val heading: String
@@ -120,53 +119,53 @@ suspend fun showTabulatorView(platformId: PLATFORM_ID, resource: UrlPathResource
     var tabulatorRowSpecifications: List<TabulatorRowSpecification> = listOf<TabulatorRowSpecification>()
 
     when (resource) {
-        UrlPathResource.CONSUMERS -> {
+        ViewDataTypes.CONSUMERS -> {
             // ajaxUrl = "/api/tak/$cpId/consumers"
             heading = "Tjänstekonsumenter i $platformName"
-            tabulatorRowSpecifications = ServiceComponent.tabulatorRowSpecifications
+            //  tabulatorRowSpecifications = ServiceComponent.tabulatorRowSpecifications
         }
 
-        UrlPathResource.PRODUCERS -> {
+        ViewDataTypes.PRODUCERS -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Tjänsteproducenter i $platformName"
         }
 
-        UrlPathResource.CONTRACTS -> {
+        ViewDataTypes.CONTRACTS -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Tjänstekontrakt i $platformName"
         }
 
-        UrlPathResource.LOGICAL_ADDRESS -> {
+        ViewDataTypes.LOGICAL_ADDRESS -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Logiska adresser i $platformName"
         }
 
-        UrlPathResource.AUTHORIZATION -> {
+        ViewDataTypes.AUTHORIZATION -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Anropsbehörigheter i $platformName"
         }
 
-        UrlPathResource.ROUTING -> {
+        ViewDataTypes.ROUTING -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Vägval i $platformName"
         }
 
-        UrlPathResource.TKNOTPARTOFAUTHORIZATION -> {
+        ViewDataTypes.TKNOTPARTOFAUTHORIZATION -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Tjänstekontrakt som inte ingår i någon anropsbehörighet i $platformName"
         }
 
-        UrlPathResource.TKNOTPARTOFROUTING -> {
+        ViewDataTypes.TKNOTPARTOFROUTING -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Tjänstekontrakt som inte ingår i något vägval i $platformName"
         }
 
-        UrlPathResource.LANOTPARTOFROUTING -> {
+        ViewDataTypes.LANOTPARTOFROUTING -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Logiska adresser som inte ingår i något vägval i $platformName"
         }
 
-        UrlPathResource.AUTHORIZATIONWITHOUTAMATCHINGROUTING -> {
+        ViewDataTypes.AUTHORIZATIONWITHOUTAMATCHINGROUTING -> {
             ajaxUrl = "/api/tak/5/consumers"
             heading = "Anropsbehörigheter som inte ingår i något vägval i $platformName"
         }

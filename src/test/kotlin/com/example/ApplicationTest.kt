@@ -50,7 +50,7 @@ class ApplicationTest {
 
     @Test
     fun testTakInfo1() = runBlocking {
-        val takInfo = obtainTakInfo(7)
+        val takInfo = obtainTakInfoBasedOnId(7)
 
         assertTrue(
             takInfo.contracts.size > 120 && takInfo.contracts.size < 140,
@@ -61,7 +61,7 @@ class ApplicationTest {
 
     @Test
     fun testTakInfo2() = runBlocking {
-        val takInfo = obtainTakInfo(7)
+        val takInfo = obtainTakInfoBasedOnId(7)
         println(takInfo.logicalAddresses.size)
 
         assertTrue(
@@ -72,7 +72,7 @@ class ApplicationTest {
 
     @Test
     fun testTakInfo3() = runBlocking {
-        val takInfo = obtainTakInfo(7)
+        val takInfo = obtainTakInfoBasedOnId(7)
         println(takInfo.serviceConsumers.size)
 
         assertTrue(
@@ -83,7 +83,7 @@ class ApplicationTest {
 
     @Test
     fun testTakInfo4() = runBlocking {
-        val takInfo = obtainTakInfo(7)
+        val takInfo = obtainTakInfoBasedOnId(7)
         println(takInfo.serviceProducers.size)
 
         assertTrue(
@@ -94,7 +94,7 @@ class ApplicationTest {
 
     @Test
     fun testCheck1() = runBlocking {
-        val takInfo = obtainTakInfo(6)
+        val takInfo = obtainTakInfoBasedOnId(6)
 
         val num = takInfo.tkNotPartOfAuthorization.size
 
