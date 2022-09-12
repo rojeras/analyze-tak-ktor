@@ -1,7 +1,6 @@
 package com.example.plugins
 
 import com.example.models.*
-import com.example.view.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
@@ -58,14 +57,16 @@ fun Application.configureRouting() {
                 val takInfo = obtainTakInfoBasedOnName(platformName)
 
                 val takData = call.parameters.getOrFail<String>("takData")
-                val viewDataType: ViewDataTypes? = ViewDataTypes.getByName(takData)
+                val viewDataType: ViewDataType? = ViewDataType.getByName(takData)
+
+                val viewContent = takInfo.viewDefinition(viewDataType!!)!!
 
                 call.respond(
                     FreeMarkerContent(
                         "tabulatorview.ftl",
                         kotlin.collections.mapOf(
-                            "heading" to "Tjänstekonsumenter i ${takInfo.platformName}",
-                            "tabulatorViewSpecifications" to TakInfo.tabulatorRowSpecification[viewDataType],
+                            "heading" to viewContent.heading,
+                            "tabulatorViewSpecifications" to viewContent.tabulatorRowSpecification,
                             "ajaxUrl" to "/api/tak/$platformName/$takData"
                         )
                     )
@@ -138,8 +139,10 @@ fun Application.configureRouting() {
             get("tak/{platformName}/{takData}") {
                 val platformName = call.parameters.getOrFail<String>("platformName")
                 val takData = call.parameters.getOrFail<String>("takData")
+                val viewDataType = ViewDataType.getByName(takData)!!
                 val takInfo = obtainTakInfoBasedOnName(platformName)
-                call.respond(takInfo.serviceConsumers)
+                // call.respond(takInfo.consumers)
+                call.respond(takInfo.viewData[viewDataType]!!)
             }
         }
     }

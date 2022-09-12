@@ -62,10 +62,10 @@ class ApplicationTest {
     @Test
     fun testTakInfo2() = runBlocking {
         val takInfo = obtainTakInfoBasedOnId(7)
-        println(takInfo.logicalAddresses.size)
+        println(takInfo.logAdresses.size)
 
         assertTrue(
-            takInfo.logicalAddresses.size > 110 && takInfo.logicalAddresses.size < 130,
+            takInfo.logAdresses.size > 110 && takInfo.logAdresses.size < 130,
             "Wrong number of logical addresses"
         )
     }
@@ -73,10 +73,10 @@ class ApplicationTest {
     @Test
     fun testTakInfo3() = runBlocking {
         val takInfo = obtainTakInfoBasedOnId(7)
-        println(takInfo.serviceConsumers.size)
+        println(takInfo.consumers.size)
 
         assertTrue(
-            takInfo.serviceConsumers.size > 60 && takInfo.serviceConsumers.size < 80,
+            takInfo.consumers.size > 60 && takInfo.consumers.size < 80,
             "Wrong number of service consumers"
         )
     }
@@ -84,10 +84,10 @@ class ApplicationTest {
     @Test
     fun testTakInfo4() = runBlocking {
         val takInfo = obtainTakInfoBasedOnId(7)
-        println(takInfo.serviceProducers.size)
+        println(takInfo.producers.size)
 
         assertTrue(
-            takInfo.serviceProducers.size > 30 && takInfo.serviceProducers.size < 50,
+            takInfo.producers.size > 30 && takInfo.producers.size < 50,
             "Wrong number of service consumers"
         )
     }

@@ -38,7 +38,7 @@ enum class PLATFORM_ID {
     `SLL-QA` // ktlint-disable enum-entry-name-case
 }
 
-enum class ViewDataTypes(val typeName: String) {
+enum class ViewDataType(val typeName: String) {
     CONTRACTS("contracts"),
     CONSUMERS("consumers"),
     PRODUCERS("producers"),
@@ -51,9 +51,18 @@ enum class ViewDataTypes(val typeName: String) {
     AUTHORIZATIONWITHOUTAMATCHINGROUTING("authorizationWithoutAMatchingRouting");
 
     companion object {
-        fun getByName(aName: String) = ViewDataTypes.values().firstOrNull { it.typeName == aName }
+        fun getByName(aName: String) = ViewDataType.values().firstOrNull { it.typeName == aName }
     }
 }
+
+data class ViewContent(
+    val heading: String,
+    val tabulatorRowSpecification: List<TabulatorRowSpecification>,
+    val ajaxUrl: String
+)
+
+@Serializable
+abstract class ViewDataSuper()
 
 fun platformName2platformId(name: String): PLATFORM_ID = PLATFORM_ID.valueOf(name)
 fun platformId2platformName(pId: PLATFORM_ID): String = pId.name
@@ -92,20 +101,20 @@ suspend fun loadAllPlatforms() {
 data class TakInfo(
     val platformId: PLATFORM_ID
 ) {
-    init {
-        // Component.tabulatorRowSpecifications.also { this.tabulatorRowSpecification[ViewDataTypes.CONSUMERS] = it }
-        tabulatorRowSpecification[ViewDataTypes.CONSUMERS] = Component.tabulatorRowSpecifications
-    }
+
+    val viewData = mutableMapOf<ViewDataType, List<ViewDataSuper>>()
 
     val connectionPointId = Platform.mapped[platformId]!!.idInSource
 
     // Define lists for the TAK information
-    var contracts = mutableListOf<Contract>()
-    var logicalAddresses = mutableListOf<LogAdr>()
-    var serviceConsumers = mutableListOf<Component>()
-    var serviceProducers = mutableListOf<Component>()
-    val authorizations = mutableListOf<Authorization>()
-    val routings = mutableListOf<Routing>()
+
+    // var contracts = mutableListOf<Contract>()
+
+    // var logAdresses = mutableListOf<LogAdr>()
+    // var consumers = mutableListOf<Component>()
+    // var producers = mutableListOf<Component>()
+    // val authorizations = mutableListOf<Authorization>()
+    // val routings = mutableListOf<Routing>()
 
     // val integrations = mutableListOf<Integration>()
 
@@ -117,11 +126,41 @@ data class TakInfo(
 
     val platformName = Platform.mapped[platformId]!!.platformName
 
+    fun viewDefinition(viewDataType: ViewDataType): ViewContent? {
+        return when (viewDataType) {
+            ViewDataType.CONSUMERS ->
+                ViewContent(
+                    "Tjänstekonsumenter in ${this.platformName}",
+                    Component.tabulatorRowSpecifications,
+                    "/api/tak/$platformName/${viewDataType.typeName}"
+                )
+
+            ViewDataType.PRODUCERS ->
+                ViewContent(
+                    "Tjänsteproducenter i ${this.platformName}",
+                    Component.tabulatorRowSpecifications,
+                    "/api/tak/$platformName/${viewDataType.typeName}"
+                )
+
+            ViewDataType.CONTRACTS ->
+                ViewContent(
+                    "Tjänstekontrakt i ${this.platformName}",
+                    Contract.tabulatorRowSpecifications,
+                    "/api/tak/$platformName/${viewDataType.typeName}"
+                )
+
+            else -> {
+                println("ERROR in viewDefinition, viewDataType is $viewDataType")
+                null
+            }
+        }
+    }
 
     suspend fun load() {
         println("Loading $platformName")
         // Contracts are created based on a subset of the information from InstalledContracts.
         val installedContracts = InstalledContract.load(connectionPointId)
+        val contracts = mutableListOf<Contract>()
         for (ic in installedContracts) {
             contracts.add(
                 Contract(
@@ -132,36 +171,44 @@ data class TakInfo(
                 )
             )
         }
+        viewData[ViewDataType.CONTRACTS] = contracts
         // contracts = installedContracts.map { it.contract }.toMutableList()
 
         // Logical addresses from TAK-api are used as-is
 
         val laTakApi = LogicalAddress.load(connectionPointId)
+        val logAdresses = mutableListOf<LogAdr>()
         for (la in laTakApi) {
-            logicalAddresses.add(
+            logAdresses.add(
                 LogAdr(la.id, la.logicalAddress, la.description)
             )
         }
+        viewData[ViewDataType.LOGICAL_ADDRESS] = logAdresses
 
         // Service consumers are used as-is
         // serviceConsumers = ServiceConsumer.load(cpId)
         val cons = ServiceComponent.load(ComponentType.CONSUMER, connectionPointId)
+        val consumers = mutableListOf<Component>()
         for (con in cons) {
-            serviceConsumers.add(
+            consumers.add(
                 Component(con.id, con.hsaId, con.description)
             )
         }
+        viewData[ViewDataType.CONSUMERS] = consumers
 
         // Service producers are used as-is
         // serviceProducers = ServiceProducer.load(cpId)
         val prods = ServiceComponent.load(ComponentType.PRODUCER, connectionPointId)
+        val producers = mutableListOf<Component>()
         for (prod in prods) {
-            serviceProducers.add(
+            producers.add(
                 Component(prod.id, prod.hsaId, prod.description)
             )
         }
+        viewData[ViewDataType.PRODUCERS] = producers
 
         val cooperations = Cooperation.load(connectionPointId)
+        val authorizations = mutableListOf<Authorization>()
         for (coop in cooperations) {
             authorizations.add(
                 Authorization(
@@ -172,10 +219,12 @@ data class TakInfo(
                 )
             )
         }
+        viewData[ViewDataType.AUTHORIZATION] = authorizations
 
         val productions = ServiceProduction.load(connectionPointId)
+        val routings = mutableListOf<Routing>()
         for (production in productions) {
-            this.routings.add(
+            routings.add(
                 Routing(
                     production.id,
                     production.serviceProducer.id,
@@ -185,6 +234,7 @@ data class TakInfo(
                 )
             )
         }
+        viewData[ViewDataType.ROUTING] = routings
         /*
                 // Create the list of integrations by combining authorizations and routings
                 for (auth in authorizations) {
@@ -215,8 +265,6 @@ data class TakInfo(
 
     companion object {
         val takStore = mutableMapOf<PLATFORM_ID, TakInfo>()
-
-        var tabulatorRowSpecification = mutableMapOf<ViewDataTypes, List<TabulatorRowSpecification>>()
     }
 }
 
@@ -264,11 +312,26 @@ data class Contract(
     val namespace: String,
     val major: Int,
     val minor: Int
-) : TakData {
+) : ViewDataSuper() {
     init {
         mapped[namespace] = this
     }
 
+    init {
+
+        val parts = namespace.split(":")
+        val endOfDomainIx = parts.size - 1 - 2
+        parts.slice(2..endOfDomainIx).joinToString(":").also { this.domainName = it }
+
+        val parts2 = namespace.split(":")
+        // val endOfDomainIx2 = parts.size - 1 - 2
+        // parts2[parts.size - 2].also { this.contractName = it }
+    }
+
+    var domainName: String
+    // var contractName: String
+
+    /*
     val domainName: String
         get() {
             val parts = namespace.split(":")
@@ -276,23 +339,23 @@ data class Contract(
             return parts.slice(2..endOfDomainIx).joinToString(":")
         }
 
-    val contractName: String
-        get() {
-            val parts = namespace.split(":")
-            val endOfDomainIx = parts.size - 1 - 2
-            return parts[parts.size - 2]
-        }
-    val htmlString: String
-        get() {
-            return "<i>${this.domainName}</i><br>${this.contractName} v${this.major}"
-        }
-
-    // override fun tableRowList(): List<String> =
-    //     listOf<String>(this.idInSource.toString(), this.domainName, this.contractName, this.major.toString())
-
+     */
+    /*
+        val contractName: String
+            get() {
+                val parts = namespace.split(":")
+                val endOfDomainIx = parts.size - 1 - 2
+                return parts[parts.size - 2]
+            }
+    */
     companion object {
         val mapped = mutableMapOf<String, Contract>()
-        fun columnHeadingList(): List<String> = listOf("Id", "Tjänstedomän", "Tjänstekontrakt", "Major")
+
+        val tabulatorRowSpecifications: List<TabulatorRowSpecification> = listOf(
+            TabulatorRowSpecification("Domain", "domainName", "string"),
+            TabulatorRowSpecification("Kontrakt", "contractName", "string"),
+            TabulatorRowSpecification("Major", "major", "string")
+        )
     }
 }
 
@@ -304,7 +367,7 @@ data class Component(
     val idInSource: Int,
     val hsaId: String,
     val description: String = "-"
-) : TakData {
+) : ViewDataSuper() {
     init {
         mapped[hsaId] = this
     }
@@ -313,7 +376,6 @@ data class Component(
         val mapped = mutableMapOf<String, Component>()
 
         val tabulatorRowSpecifications: List<TabulatorRowSpecification> = listOf(
-            TabulatorRowSpecification("id", "id", "string"),
             TabulatorRowSpecification("HsaId", "hsaId", "string"),
             TabulatorRowSpecification("Beskrivning", "description", "string")
         )
@@ -328,7 +390,7 @@ data class LogAdr(
     val idInSource: Int,
     val logicalAddress: String,
     val description: String
-) : TakData {
+) : ViewDataSuper() {
     init {
         mapped[logicalAddress] = this
     }
@@ -340,21 +402,21 @@ data class LogAdr(
 
 @Serializable
 data class Authorization(
-    val id: Int,
+    val idInSource: Int,
     val serviceComponentId: Int,
     val logicalAddressId: Int,
     val serviceContractId: Int
-) : TakData {
+) : ViewDataSuper() {
     init {
-        mapped[id] = this
+        mapped[idInSource] = this
 
         // Verify that the logical address is part of loaded logical addresses
         LogicalAddress.mapped.values.find { it.id == this.logicalAddressId }
-            ?: throw NoSuchElementException("Cooperation with id $id refer to a non-existing logical address id $logicalAddressId")
+            ?: throw NoSuchElementException("Cooperation with id $idInSource refer to a non-existing logical address id $logicalAddressId")
 
         // Verify that the contract is part of loaded contracts
         Contract.mapped.values.find { it.idInSource == this.serviceContractId }
-            ?: throw NoSuchElementException("Cooperation with id $id refer to a non-existing contract id $serviceContractId")
+            ?: throw NoSuchElementException("Cooperation with id $idInSource refer to a non-existing contract id $serviceContractId")
     }
 
     /*
@@ -375,22 +437,22 @@ data class Authorization(
 
 @Serializable
 data class Routing(
-    val id: Int,
+    val idInSource: Int,
     val serviceComponentId: Int,
     val logicalAddressId: Int,
     val serviceContractId: Int,
     val rivtaProfile: String
-) : TakData {
+) : ViewDataSuper() {
     init {
-        mapped[id] = this
+        mapped[idInSource] = this
 
         // Verify that the logical address is part of loaded logical addresses
         LogicalAddress.mapped.values.find { it.id == this.logicalAddressId }
-            ?: throw NoSuchElementException("Routing with id $id refer to a non-existing logical address id $logicalAddressId")
+            ?: throw NoSuchElementException("Routing with id $idInSource refer to a non-existing logical address id $logicalAddressId")
 
         // Verify that the contract is part of loaded contracts
         Contract.mapped.values.find { it.idInSource == this.serviceContractId }
-            ?: throw NoSuchElementException("Routing with id $id refer to a non-existing contract id $serviceContractId")
+            ?: throw NoSuchElementException("Routing with id $idInSource refer to a non-existing contract id $serviceContractId")
     }
 
     fun matchAuthorization(auth: Authorization): Boolean {
