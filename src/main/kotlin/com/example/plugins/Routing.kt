@@ -1,6 +1,7 @@
 package com.example.plugins
 
 import com.example.models.*
+import com.example.view.showSummaryView
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.freemarker.*
@@ -26,25 +27,24 @@ fun Application.configureRouting() {
         }
 
         route("tak") {
-            /*
             get("") {
                 println("In tak/select")
                 call.respond(
                     io.ktor.server.freemarker.FreeMarkerContent(
                         "select.ftl",
                         kotlin.collections.mapOf(
-                            "plattforms" to com.example.models.ConnectionPoint.plattforms,
-                            "cpId" to 0
+                            "plattforms" to Platform.mapped.values, // com.example.models.ConnectionPoint.plattforms,
+                            "selectedPlatform" to ""
                         )
                     )
                 )
             }
 
-            get("{tpId}") {
-                val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                call.respond(showSummaryView(id))
+            get("{platformName}") {
+                val platformName = call.parameters.getOrFail<String>("platformName")
+                val takInfo = obtainTakInfoBasedOnName(platformName)
+                call.respond(showSummaryView(takInfo))
             }
-            */
 
             get("{platformName}/{takData}") {
                 val platformName = call.parameters.getOrFail<String>("platformName")

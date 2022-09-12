@@ -12,10 +12,10 @@
             <option style="display: none">Välj</option>
 
             <#list plattforms as plattform>
-                <#if plattform.id == cpId>
-                    <option selected="selected" value="${plattform.id}">${plattform.platform}-${plattform.environment}</option>
+                <#if plattform.platformId == selectedPlatform>
+                    <option selected="selected" value="${plattform.platformId}">${plattform.platformId}</option>
                 <#else >
-                    <option value="${plattform.id}">${plattform.platform}-${plattform.environment}</option>
+                    <option value="${plattform.platformId}">${plattform.platformId}</option>
                 </#if>
 
             </#list>
@@ -23,7 +23,7 @@
         -->
         <#list plattforms as plattform>
 
-            <a href="tak/${plattform.id}">${plattform.platform}-${plattform.environment}</a>
+            <a href="tak/${plattform.platformId}">${plattform.platformId}</a>
             <br>
 
         </#list>

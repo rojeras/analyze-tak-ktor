@@ -7,10 +7,11 @@
         </h3>
         <h4>Information om TAK-databasen</h4>
         <p>
-            Antal <a href="/tak/${cpId}/consumers">tjänstekonsumenter</a>: ${numOfConsumers}<br>
-            Antal <a href="/tak/${cpId}/producers">tjänsteproducenter</a>: ${numOfProducers}<br>
-            Antal <a href="/tak/${cpId}/contracts">tjänstekontrakt</a>: ${numOfContracts}<br>
-            Antal <a href="/tak/${cpId}/logicaladdress">logiska adresser</a>: ${numOfLogicalAddresses}<br>
+            Antal <a href="/tak/${platformName}/consumers">tjänstekonsumenter</a>: ${numOfConsumers}<br>
+            Antal <a href="/tak/${platformName}/producers">tjänsteproducenter</a>: ${numOfProducers}<br>
+            Antal <a href="/tak/${platformName}/contracts">tjänstekontrakt</a>: ${numOfContracts}<br>
+            Antal <a href="/tak/${platformName}/logicaladdress">logiska adresser</a>: ${numOfLogicalAddresses}<br>
+            <#--
             Antal <a href="/tak/${cpId}/authorizations">anropsbehörigheter</a>: ${numOfAuthorizations}<br>
             Antal <a href="/tak/${cpId}/routings">vägval</a>: ${numOfRoutings}<br>
         </p>
@@ -24,6 +25,7 @@
         Antal <a href="/tak/${cpId}/authorizationwithoutamatchingrouting">anropsbehörigheter som inte ingår i något
             vägval</a>: ${authorizationWithoutAMatchingRouting}<br>
         <hr>
+        -->
         <p>
         </p>
     </div>
