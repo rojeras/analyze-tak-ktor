@@ -131,7 +131,11 @@ data class ServiceContract(
     val namespace: String,
     val major: Int,
     val minor: Int
-)
+) {
+    init {
+        println(namespace)
+    }
+}
 
 /**
  * Represent the response from a call to TAK-api LogicalAddresss

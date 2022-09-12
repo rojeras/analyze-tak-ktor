@@ -44,14 +44,8 @@ fun Application.configureRouting() {
                 val id = call.parameters.getOrFail<Int>("tpId").toInt()
                 call.respond(showSummaryView(id))
             }
-
-            get("{tpId}/consumers") {
-                val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                // call.respond(showComponentView(id, UrlPathResource.CONSUMERS))
-                call.respond(showDataView(id, UrlPathResource.CONSUMERS))
-            }
             */
-            // get("{platformName}/consumers") {
+
             get("{platformName}/{takData}") {
                 val platformName = call.parameters.getOrFail<String>("platformName")
                 val takInfo = obtainTakInfoBasedOnName(platformName)
@@ -71,26 +65,8 @@ fun Application.configureRouting() {
                         )
                     )
                 )
-                // call.respond(showTabulatorView(id, UrlPathResource.CONSUMERS))
             }
             /*
-                        get("{tpId}/producers") {
-                            val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                            call.respond(showDataView(id, UrlPathResource.PRODUCERS))
-                            // call.respond(showComponentView(id, UrlPathResource.PRODUCERS))
-                        }
-
-                        get("{tpId}/logicaladdress") {
-                            val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                            call.respond(showDataView(id, UrlPathResource.LOGICAL_ADDRESS))
-                            // call.respond(mkLogicalAddressView(id))
-                        }
-
-                        get("{tpId}/contracts") {
-                            val id = call.parameters.getOrFail<Int>("tpId").toInt()
-                            call.respond(showDataView(id, UrlPathResource.CONTRACTS))
-                            // call.respond(mkContractView(id))
-                        }
 
                         get("{tpId}/authorizations") {
                             val id = call.parameters.getOrFail<Int>("tpId").toInt()
